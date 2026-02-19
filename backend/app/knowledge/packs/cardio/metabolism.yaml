@@ -1,0 +1,30 @@
+name: cardio_metabolism
+nodes:
+  - id: cardio.metabolism.myocardial_o2_demand
+    label: Myocardial O2 Demand
+    domain: cardio
+    type: variable
+    state_type: qualitative
+    description: "Oxygen required by the myocardium for work."
+  - id: cardio.metabolism.myocardial_o2_supply
+    label: Myocardial O2 Supply
+    domain: cardio
+    type: variable
+    state_type: qualitative
+  - id: cardio.metabolism.cardiac_injury
+    label: Cardiac Injury Markers
+    domain: cardio
+    type: variable
+    state_type: qualitative
+    aliases: ["Troponin", "CK-MB"]
+
+edges:
+  - source: cardio.metabolism.myocardial_o2_demand
+    target: cardio.metabolism.cardiac_injury
+    rel: increases
+    weight: 0.4
+    description: "Excess demand relative to supply promotes myocardial injury."
+  - source: cardio.metabolism.myocardial_o2_supply
+    target: cardio.metabolism.cardiac_injury
+    rel: decreases
+    weight: 0.6

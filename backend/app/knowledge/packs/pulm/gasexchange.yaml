@@ -1,0 +1,90 @@
+name: pulm_gasexchange
+nodes:
+  - id: pulm.gasexchange.pao2
+    label: PaO2
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    aliases: ["Arterial Oxygen Tension"]
+  - id: pulm.gasexchange.paco2
+    label: PaCO2
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    aliases: ["Arterial CO2 Tension"]
+  - id: pulm.ventilation.alveolar_ventilation
+    label: Alveolar Ventilation
+    domain: pulm
+    type: process
+    state_type: qualitative
+    aliases: ["VA"]
+  - id: pulm.ventilation.vagal_tone
+    label: Vagal Tone
+    domain: pulm
+    type: process
+    state_type: qualitative
+  - id: pulm.gasexchange.aa_gradient
+    label: A-a Gradient
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Difference between Alveolar (A) and Arterial (a) oxygen tension. Elevated in diffusion defects or shunt."
+  - id: pulm.gasexchange.vq_mismatch
+    label: V/Q Mismatch
+    domain: pulm
+    type: process
+    state_type: qualitative
+    description: "Ventilation-Perfusion imbalance, a primary cause of hypoxemia."
+  - id: pulm.gasexchange.diffusion_capacity
+    label: Diffusion Capacity (DLCO)
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Ability of gas to transfer from alveoli to pulmonary capillary blood."
+
+edges:
+  - source: pulm.ventilation.alveolar_ventilation
+    target: pulm.gasexchange.pao2
+    rel: increases
+    weight: 1.0
+    context:
+      copd: false
+    description: "Ventilation improves oxygenation. In COPD, ventilation-perfusion mismatch impairs this link."
+  - source: pulm.ventilation.alveolar_ventilation
+    target: pulm.gasexchange.paco2
+    rel: decreases
+    weight: 1.0
+  - source: pulm.gasexchange.pao2
+    target: neuro.ans.sympathetic_tone
+    rel: decreases
+    weight: 0.8
+    description: "Hypoxia (low PaO2) increases sympathetic tone"
+  - source: pulm.gasexchange.paco2
+    target: pulm.ventilation.alveolar_ventilation
+    rel: increases
+    weight: 1.0
+    priority: high
+    description: "Central chemoreceptors detect increased PaCO2/low pH in CSF and stimulate ventilation"
+  - source: neuro.ans.parasympathetic_tone
+    target: pulm.ventilation.vagal_tone
+    rel: increases
+    weight: 1.0
+  - source: pulm.gasexchange.vq_mismatch
+    target: pulm.gasexchange.aa_gradient
+    rel: increases
+    weight: 1.0
+  - source: pulm.gasexchange.aa_gradient
+    target: pulm.gasexchange.pao2
+    rel: decreases
+    weight: 1.0
+    description: "An increased A-a gradient (widening) impairs arterial oxygenation."
+  - source: pulm.hemo.hpv
+    target: pulm.gasexchange.vq_mismatch
+    rel: decreases
+    weight: 0.8
+    description: "Hypoxic Pulmonary Vasoconstriction improves V/Q matching by shunting blood to well-ventilated alveoli."
+  - source: pulm.gasexchange.diffusion_capacity
+    target: pulm.gasexchange.aa_gradient
+    rel: decreases
+    weight: 0.9
+    description: "High diffusion capacity keeps the A-a gradient tight; loss of diffusion (Fibrosis/Edema) widens it."

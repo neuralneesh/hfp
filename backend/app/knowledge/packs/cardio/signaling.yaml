@@ -1,0 +1,46 @@
+name: cardio_signaling
+nodes:
+  - id: cardio.signaling.heart_camp
+    label: Myocardial cAMP
+    domain: cardio
+    type: variable
+    state_type: qualitative
+    description: "Intracellular secondary messenger (Cyclic AMP) in cardiomyocytes."
+  - id: cardio.signaling.gs_protein
+    label: Gs Protein Activation
+    domain: cardio
+    type: process
+    state_type: qualitative
+  - id: cardio.signaling.gi_protein
+    label: Gi Protein Activation
+    domain: cardio
+    type: process
+    state_type: qualitative
+
+edges:
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.signaling.gs_protein
+    rel: increases
+    weight: 0.9
+  - source: cardio.signaling.gs_protein
+    target: cardio.signaling.heart_camp
+    rel: increases
+    weight: 1.0
+  - source: neuro.ans.parasympathetic_tone
+    target: cardio.signaling.gi_protein
+    rel: increases
+    weight: 0.9
+  - source: cardio.signaling.gi_protein
+    target: cardio.signaling.heart_camp
+    rel: decreases
+    weight: 1.0
+  - source: cardio.signaling.heart_camp
+    target: cardio.hemodynamics.heart_rate
+    rel: increases
+    weight: 0.9
+    description: "cAMP stimulates HCN channels in SA node, increasing slope of phase 4."
+  - source: cardio.signaling.heart_camp
+    target: cardio.electrophysiology.av_conduction
+    rel: increases
+    weight: 0.8
+    description: "cAMP increases Calcium entry in AV node, enhancing conduction."

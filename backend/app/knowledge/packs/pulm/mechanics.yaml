@@ -1,0 +1,77 @@
+name: pulm_mechanics
+nodes:
+  - id: pulm.mechanics.compliance
+    label: Lung Compliance
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Measure of the lung's ability to stretch and expand."
+  - id: pulm.mechanics.resistance
+    label: Airway Resistance
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Resistance to airflow, primarily in the medium-sized bronchi."
+  - id: pulm.mechanics.surfactant
+    label: Lung Surfactant
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Dipalmitoylphosphatidylcholine-rich substance reducing surface tension."
+  - id: pulm.mechanics.work_of_breathing
+    label: Work of Breathing
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Energy required to overcome elastic and resistive loads during ventilation."
+  - id: pulm.mechanics.intrapleural_pressure
+    label: Intrapleural Pressure
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Pressure in the pleural space, normally negative due to opposing lung/chest wall recoil."
+
+edges:
+  - source: pulm.mechanics.surfactant
+    target: pulm.mechanics.compliance
+    rel: increases
+    weight: 0.95
+    description: "Surfactant reduces surface tension (Law of LaPlace), preventing alveolar collapse and increasing compliance."
+  - source: pulm.mechanics.compliance
+    target: pulm.mechanics.work_of_breathing
+    rel: decreases
+    weight: 0.8
+    description: "High compliance reduces the elastic work required for expansion."
+  - source: pulm.mechanics.resistance
+    target: pulm.mechanics.work_of_breathing
+    rel: increases
+    weight: 0.8
+    description: "High airway resistance increases the resistive work of breathing (Poiseuille's Law)."
+  - source: pulm.mechanics.compliance
+    target: pulm.ventilation.alveolar_ventilation
+    rel: increases
+    weight: 0.9
+  - source: pulm.mechanics.resistance
+    target: pulm.ventilation.alveolar_ventilation
+    rel: decreases
+    weight: 0.9
+  - source: pulm.mechanics.intrapleural_pressure
+    target: pulm.ventilation.alveolar_ventilation
+    rel: decreases
+    weight: 1.0
+    description: "As intrapleural pressure becomes more negative (Boyles Law), alveolar volume increases and air flows in."
+  - source: pulm.mechanics.compliance
+    target: pulm.gasexchange.diffusion_capacity
+    rel: increases
+    weight: 0.8
+    description: "Low compliance (Fibrosis) reduces functional surface area for diffusion."
+  - source: pulm.mechanics.compliance
+    target: pulm.gasexchange.vq_mismatch
+    rel: decreases
+    weight: 0.7
+    description: "Loss of compliance in restrictive disease leads to uneven ventilation and V/Q mismatch."
+  - source: pulm.mechanics.resistance
+    target: pulm.gasexchange.vq_mismatch
+    rel: increases
+    weight: 0.8
+    description: "High airway resistance (Obstructive disease) causes air trapping and V/Q mismatch."

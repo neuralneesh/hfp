@@ -1,0 +1,71 @@
+name: renal_raas
+nodes:
+  - id: renal.raas.renin
+    label: Renin
+    domain: renal
+    type: hormone
+    state_type: qualitative
+  - id: renal.raas.angiotensin_2
+    label: Angiotensin II
+    domain: renal
+    type: hormone
+    state_type: qualitative
+  - id: renal.raas.aldosterone
+    label: Aldosterone
+    domain: renal
+    type: hormone
+    state_type: qualitative
+  - id: renal.raas.at1_receptor
+    label: AT1 Receptor Activation
+    domain: renal
+    type: process
+    state_type: qualitative
+  - id: renal.raas.mr_receptor
+    label: Mineralocorticoid Receptor Activation
+    domain: renal
+    type: process
+    state_type: qualitative
+  - id: renal.tubule.na_reabsorption
+    label: Na+ Reabsorption
+    domain: renal
+    type: process
+    state_type: qualitative
+
+edges:
+  - source: renal.raas.renin
+    target: renal.raas.angiotensin_2
+    rel: increases
+    weight: 1.0
+  - source: renal.raas.angiotensin_2
+    target: renal.raas.at1_receptor
+    rel: increases
+    weight: 1.0
+  - source: renal.raas.angiotensin_2
+    target: renal.raas.aldosterone
+    rel: increases
+    weight: 0.8
+    context:
+      ace_inhibitor: false
+  - source: renal.raas.aldosterone
+    target: renal.raas.mr_receptor
+    rel: increases
+    weight: 1.0
+  - source: renal.raas.mr_receptor
+    target: renal.tubule.na_reabsorption
+    rel: increases
+    weight: 0.9
+  - source: renal.raas.mr_receptor
+    target: renal.metabolism.potassium
+    rel: decreases
+    weight: 0.8
+    description: "Aldosterone stimulates K+ secretion in exchange for Na+"
+  - source: renal.raas.mr_receptor
+    target: acidbase.blood.h_concentration
+    rel: decreases
+    weight: 0.7
+    description: "MR activation in alpha-intercalated cells promotes H+ secretion (Acid loss)"
+  - source: cardio.hemodynamics.map
+    target: renal.raas.renin
+    rel: decreases
+    weight: 0.7
+    description: "Renal baroreceptors detect low perfusion and stimulate renin release"

@@ -1,0 +1,31 @@
+name: neuro_ans
+nodes:
+  - id: neuro.ans.sympathetic_tone
+    label: Sympathetic Tone
+    domain: neuro
+    type: process
+    state_type: qualitative
+  - id: neuro.ans.parasympathetic_tone
+    label: Parasympathetic Tone
+    domain: neuro
+    type: process
+    state_type: qualitative
+
+edges:
+  - source: cardio.hemodynamics.map
+    target: neuro.ans.sympathetic_tone
+    rel: decreases
+    weight: 0.8
+    description: "Baroreceptor reflex: high BP inhibits sympathetic outflow"
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.hemodynamics.heart_rate
+    rel: increases
+    weight: 0.9
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.hemodynamics.svr
+    rel: increases
+    weight: 0.8
+  - source: neuro.ans.parasympathetic_tone
+    target: cardio.hemodynamics.heart_rate
+    rel: decreases
+    weight: 0.9

@@ -1,0 +1,51 @@
+name: pulm_hemodynamics
+nodes:
+  - id: pulm.hemo.pvr
+    label: Pulmonary Vascular Resistance
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Resistance of the pulmonary circulation. Low pressure/low resistance circuit."
+  - id: pulm.hemo.hpv
+    label: Hypoxic Pulmonary Vasoconstriction
+    domain: pulm
+    type: process
+    state_type: qualitative
+    description: "Reflexive vasoconstriction of pulmonary vessels in response to alveolar hypoxia (High V/Q matching)."
+  - id: pulm.hemo.lung_zones
+    label: West Lung Zones (1, 2, 3)
+    domain: pulm
+    type: process
+    state_type: qualitative
+    description: "Flow distribution based on the relationship between PA, Pa, and Pv pressures."
+  - id: pulm.hemo.recruitment
+    label: Capillary Recruitment
+    domain: pulm
+    type: process
+    state_type: qualitative
+    description: "Opening of collapsed capillaries in response to increased cardiac output."
+
+edges:
+  - source: pulm.gasexchange.pao2
+    target: pulm.hemo.hpv
+    rel: decreases
+    weight: 1.0
+    description: "Alveolar hypoxia triggers HPV to shunt blood away from poorly ventilated areas."
+  - source: pulm.hemo.hpv
+    target: pulm.hemo.pvr
+    rel: increases
+    weight: 0.95
+  - source: pulm.hemo.pvr
+    target: cardio.metabolism.myocardial_o2_demand
+    rel: increases
+    weight: 0.4
+    description: "Increased afterload on the right heart increases myocardial work."
+  - source: cardio.hemodynamics.cardiac_output
+    target: pulm.hemo.recruitment
+    rel: increases
+    weight: 0.8
+  - source: pulm.hemo.recruitment
+    target: pulm.hemo.pvr
+    rel: decreases
+    weight: 0.7
+    description: "Recruitment and distention lower PVR as cardiac output rises."

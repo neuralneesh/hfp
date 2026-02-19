@@ -1,0 +1,77 @@
+name: renal_metabolism
+nodes:
+  - id: renal.metabolism.osmolarity
+    label: Serum Osmolarity
+    domain: renal
+    type: variable
+    state_type: qualitative
+  - id: renal.metabolism.adh
+    label: ADH (Vasopressin)
+    domain: renal
+    type: hormone
+    state_type: qualitative
+  - id: renal.metabolism.anp_bnp
+    label: ANP / BNP
+    domain: renal
+    type: hormone
+    state_type: qualitative
+  - id: renal.metabolism.v2_receptor
+    label: V2 Receptor Activation
+    domain: renal
+    type: process
+    state_type: qualitative
+  - id: renal.metabolism.potassium
+    label: Serum Potassium
+    domain: renal
+    type: variable
+    state_type: qualitative
+    unit: "mEq/L"
+    normal_range: { min: 3.5, max: 5.0 }
+  - id: renal.signaling.renal_camp
+    label: Renal cAMP
+    domain: renal
+    type: variable
+    state_type: qualitative
+    description: "Intracellular cAMP in renal tubular cells."
+
+edges:
+  - source: renal.metabolism.osmolarity
+    target: renal.metabolism.adh
+    rel: increases
+    weight: 1.0
+    description: "Increased osmolarity stimulates ADH release from the posterior pituitary"
+  - source: renal.volume.ecf_volume
+    target: renal.metabolism.adh
+    rel: decreases
+    weight: 0.8
+    description: "High ECF volume (high atrial/baroreceptor stretch) inhibits ADH release; conversely, low volume stimulates it."
+  - source: renal.metabolism.adh
+    target: renal.metabolism.v2_receptor
+    rel: increases
+    weight: 1.0
+  - source: renal.metabolism.v2_receptor
+    target: renal.signaling.renal_camp
+    rel: increases
+    weight: 1.0
+    description: "V2 receptors are Gs-coupled, increasing cAMP in collecting duct cells."
+  - source: renal.signaling.renal_camp
+    target: renal.volume.ecf_volume
+    rel: increases
+    weight: 0.9
+    delay: hours
+    description: "Increased cAMP (via V2) promotes Aquaporin-2 insertion, increasing water reabsorption and ECF volume."
+  - source: renal.volume.ecf_volume
+    target: renal.metabolism.anp_bnp
+    rel: increases
+    weight: 0.9
+    description: "Increased ECF volume (atrial stretch) stimulates ANP/BNP release"
+  - source: renal.metabolism.anp_bnp
+    target: renal.raas.renin
+    rel: decreases
+    weight: 0.7
+    description: "ANP/BNP inhibits renin release"
+  - source: renal.metabolism.anp_bnp
+    target: renal.tubule.na_reabsorption
+    rel: decreases
+    weight: 0.6
+    description: "ANP promotes natriuresis (inhibits Na+ reabsorption)"

@@ -1,0 +1,162 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.1.7
+   - Local:        http://localhost:3000
+   - Network:      http://172.16.33.199:3000
+
+ ✓ Starting...
+ ✓ Ready in 1183ms
+ ✓ Compiled /favicon.ico in 207ms (79 modules)
+ GET /favicon.ico 200 in 285ms
+ GET /favicon.ico 200 in 287ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1636ms (1513 modules)
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ✓ Compiled /_error in 315ms (1755 modules)
+ GET / 500 in 2346ms
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 518ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 568ms (1730 modules)
+ GET /_next/static/chunks/pages/_app.js 404 in 702ms
+ GET /_next/static/chunks/pages/_error.js 404 in 699ms
+ GET /_next/static/chunks/webpack.js 404 in 731ms
+ GET /_next/static/chunks/main.js 404 in 725ms
+ GET /_next/static/chunks/react-refresh.js 404 in 726ms
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 518ms
+ GET /_next/static/chunks/webpack.js 404 in 57ms
+ GET /_next/static/chunks/react-refresh.js 404 in 51ms
+ GET /_next/static/chunks/pages/_app.js 404 in 49ms
+ GET /_next/static/chunks/pages/_error.js 404 in 49ms
+ GET /_next/static/chunks/main.js 404 in 55ms
+ ✓ Compiled /favicon.ico in 108ms (819 modules)
+ GET /favicon.ico 200 in 172ms
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 537ms
+ GET /_next/static/chunks/webpack.js 404 in 214ms
+ GET /_next/static/chunks/main.js 404 in 221ms
+ GET /_next/static/chunks/react-refresh.js 404 in 220ms
+ GET /_next/static/chunks/pages/_app.js 404 in 219ms
+ GET /_next/static/chunks/pages/_error.js 404 in 217ms
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 473ms
+ GET /_next/static/chunks/webpack.js 404 in 217ms
+ GET /_next/static/chunks/main.js 404 in 216ms
+ GET /_next/static/chunks/react-refresh.js 404 in 215ms
+ GET /_next/static/chunks/pages/_app.js 404 in 214ms
+ GET /_next/static/chunks/pages/_error.js 404 in 213ms
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 435ms
+ GET /_next/static/chunks/webpack.js 404 in 211ms
+ GET /_next/static/chunks/main.js 404 in 209ms
+ GET /_next/static/chunks/react-refresh.js 404 in 208ms
+ GET /_next/static/chunks/pages/_app.js 404 in 206ms
+ GET /_next/static/chunks/pages/_error.js 404 in 205ms
+ ⨯ [Error: Cannot find module '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/server/app/page.js'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/require.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/load-components.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/utils.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/options.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/swc/index.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/next.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 438ms
+ GET /_next/static/chunks/webpack.js 404 in 222ms
+ GET /_next/static/chunks/main.js 404 in 219ms
+ GET /_next/static/chunks/react-refresh.js 404 in 217ms
+ GET /_next/static/chunks/pages/_app.js 404 in 215ms
+ GET /_next/static/chunks/pages/_error.js 404 in 212ms

@@ -1,0 +1,23 @@
+name: acidbase_core
+nodes:
+  - id: acidbase.blood.ph
+    label: Arterial pH
+    domain: acidbase
+    type: variable
+    state_type: qualitative
+  - id: acidbase.blood.hco3
+    label: Bicarbonate (HCO3-)
+    domain: acidbase
+    type: variable
+    state_type: qualitative
+
+edges:
+  - source: acidbase.blood.h_concentration
+    target: acidbase.blood.ph
+    rel: decreases
+    weight: 1.0
+  - source: pulm.gasexchange.paco2
+    target: acidbase.blood.h_concentration
+    rel: increases
+    weight: 1.0
+    description: "CO2 + H2O <-> H2CO3 <-> H+ + HCO3- (Henderson-Hasselbalch)"

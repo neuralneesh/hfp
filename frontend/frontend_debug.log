@@ -1,0 +1,21 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/caniuse-lite/dist/unpacker/agents.js:16
+  map[browsers[key]] = Object.keys(versionsData).reduce((data, entry) => {
+              ^
+
+TypeError: Cannot read properties of undefined (reading 'A')
+    at /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/caniuse-lite/dist/unpacker/agents.js:16:15
+    at Array.reduce (<anonymous>)
+    at Object.<anonymous> (/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/caniuse-lite/dist/unpacker/agents.js:14:49)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1463:12)
+
+Node.js v22.22.0

@@ -1,0 +1,97 @@
+name: cardio_hemodynamics
+nodes:
+  - id: cardio.hemodynamics.map
+    label: Mean Arterial Pressure (MAP)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+    aliases: ["Blood Pressure"]
+  - id: cardio.hemodynamics.cardiac_output
+    label: Cardiac Output (CO)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+  - id: cardio.hemodynamics.heart_rate
+    label: Heart Rate (HR)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+  - id: cardio.hemodynamics.stroke_volume
+    label: Stroke Volume (SV)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+  - id: cardio.mechanics.inotropy
+    label: Myocardial Inotropy
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Contractile strength of the myocardium."
+  - id: cardio.hemodynamics.svr
+    label: Systemic Vascular Resistance (SVR)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+  - id: cardio.electrophysiology.av_conduction
+    label: AV Conduction
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Speed of electrical signal propagation through the AV node."
+  - id: cardio.electrophysiology.pr_interval
+    label: EKG PR-Interval
+    domain: cardio
+    type: variable
+    state_type: qualitative
+  - id: acidbase.blood.h_concentration
+    label: "[H+] Concentration"
+    domain: acidbase
+    type: variable
+    state_type: qualitative
+
+edges:
+  - source: cardio.hemodynamics.cardiac_output
+    target: cardio.hemodynamics.map
+    rel: increases
+    weight: 1.0
+  - source: cardio.hemodynamics.svr
+    target: cardio.hemodynamics.map
+    rel: increases
+    weight: 1.0
+  - source: cardio.hemodynamics.heart_rate
+    target: cardio.hemodynamics.cardiac_output
+    rel: increases
+    weight: 0.8
+  - source: cardio.hemodynamics.stroke_volume
+    target: cardio.hemodynamics.cardiac_output
+    rel: increases
+    weight: 0.8
+  - source: cardio.electrophysiology.av_conduction
+    target: cardio.electrophysiology.pr_interval
+    rel: decreases
+    weight: 1.0
+    description: "Faster AV conduction shortens the PR interval."
+  - source: neuro.ans.parasympathetic_tone
+    target: cardio.electrophysiology.av_conduction
+    rel: decreases
+    weight: 0.8
+    description: "Vagal tone reduces AV conduction (negative dromotropy)."
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.electrophysiology.av_conduction
+    rel: increases
+    weight: 0.8
+    description: "Sympathetic tone enhances AV conduction (positive dromotropy)."
+  - source: cardio.signaling.heart_camp
+    target: cardio.mechanics.inotropy
+    rel: increases
+    weight: 1.0
+    description: "PKA phosphorylation of L-type Ca channels and phospholamban increases contractility."
+  - source: cardio.mechanics.inotropy
+    target: cardio.hemodynamics.stroke_volume
+    rel: increases
+    weight: 0.9
+  - source: pulm.gasexchange.pao2
+    target: cardio.hemodynamics.heart_rate
+    rel: decreases
+    weight: 0.5
+    description: "Hypoxia triggers reflex tachycardia"

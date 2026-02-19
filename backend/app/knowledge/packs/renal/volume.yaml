@@ -1,0 +1,32 @@
+name: renal_volume
+nodes:
+  - id: renal.volume.ecf_volume
+    label: ECF Volume
+    domain: renal
+    type: variable
+    state_type: qualitative
+  - id: renal.volume.preload
+    label: Cardiac Preload
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+edges:
+  - source: renal.tubule.na_reabsorption
+    target: renal.volume.ecf_volume
+    rel: increases
+    weight: 0.9
+  - source: renal.volume.ecf_volume
+    target: renal.volume.preload
+    rel: increases
+    weight: 1.0
+  - source: renal.volume.preload
+    target: cardio.hemodynamics.stroke_volume
+    rel: increases
+    weight: 0.9
+    description: "Frank-Starling Law: increased preload increases SV"
+  - source: renal.volume.ecf_volume
+    target: cardio.hemodynamics.heart_rate
+    rel: increases
+    weight: 0.5
+    description: "Bainbridge Reflex: increased atrial stretch increases HR"

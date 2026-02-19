@@ -1,0 +1,304 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.1.7
+   - Local:        http://localhost:3000
+   - Network:      http://172.16.33.199:3000
+
+ ✓ Starting...
+ ✓ Ready in 1003ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.5s (1516 modules)
+ GET / 200 in 3822ms
+ GET / 200 in 719ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 611ms (773 modules)
+ GET /favicon.ico 200 in 688ms
+ ✓ Compiled in 213ms (740 modules)
+ GET / 200 in 38ms
+ GET / 200 in 6ms
+ ✓ Compiled in 274ms (1498 modules)
+ GET / 200 in 102ms
+ GET / 200 in 101ms
+ ✓ Compiled in 154ms (1498 modules)
+ GET / 200 in 46ms
+ GET / 200 in 48ms
+ ✓ Compiled in 180ms (1498 modules)
+ GET / 200 in 21ms
+ GET / 200 in 22ms
+ ✓ Compiled in 658ms (1498 modules)
+ GET / 200 in 19ms
+ GET / 200 in 19ms
+ ✓ Compiled in 212ms (1498 modules)
+ GET / 200 in 17ms
+ GET / 200 in 17ms
+ ✓ Compiled /favicon.ico in 260ms (773 modules)
+ GET /favicon.ico 200 in 406ms
+ GET / 200 in 439ms
+ GET / 200 in 227ms
+ GET /favicon.ico 200 in 31ms
+ GET /favicon.ico 200 in 29ms
+ GET / 200 in 54ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1087ms (1517 modules)
+ GET /api/graph 404 in 1207ms
+ GET / 200 in 66ms
+ GET / 200 in 75ms
+ ✓ Compiled in 696ms (1498 modules)
+ GET / 200 in 119ms
+ GET / 200 in 121ms
+ GET / 200 in 349ms
+ ✓ Compiled in 381ms (1498 modules)
+ GET / 200 in 41ms
+ GET / 200 in 42ms
+ GET / 200 in 298ms
+ GET / 200 in 12ms
+ ✓ Compiled in 396ms (1498 modules)
+ GET / 200 in 36ms
+ GET / 200 in 38ms
+ GET / 200 in 186ms
+ GET / 200 in 191ms
+ GET / 200 in 76ms
+ ✓ Compiled in 374ms (1498 modules)
+ GET / 200 in 28ms
+ GET / 200 in 28ms
+ ✓ Compiled in 642ms (1498 modules)
+ GET / 200 in 26ms
+ GET / 200 in 5ms
+ ✓ Compiled in 237ms (1498 modules)
+ GET / 200 in 49ms
+ GET / 200 in 57ms
+ GET / 200 in 181317ms
+ ⨯ ./node_modules/cytoscape-fcose/cytoscape-fcose.js:3:1
+Module not found: /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/cose-base/package.json (directory description file): No file content
+  1 | (function webpackUniversalModuleDefinition(root, factory) {
+  2 | 	if(typeof exports === 'object' && typeof module === 'object')
+> 3 | 		module.exports = factory(require("cose-base"));
+    | ^
+  4 | 	else if(typeof define === 'function' && define.amd)
+  5 | 		define(["cose-base"], factory);
+  6 | 	else if(typeof exports === 'object')
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/GraphView.tsx
+./src/app/page.tsx
+[Error: Can't resolve 'tailwindcss' in '/Users/aneesh/Desktop/Med School/HFP/frontend/src/app'] {
+  details: "resolve 'tailwindcss' in '/Users/aneesh/Desktop/Med School/HFP/frontend/src/app'\n" +
+    '  Parsed request is a module\n' +
+    '  using description file: /Users/aneesh/Desktop/Med School/HFP/frontend/package.json (relative path: ./src/app)\n' +
+    '    resolve as module\n' +
+    "      /Users/aneesh/Desktop/Med School/HFP/frontend/src/app/node_modules doesn't exist or is not a directory\n" +
+    "      /Users/aneesh/Desktop/Med School/HFP/frontend/src/node_modules doesn't exist or is not a directory\n" +
+    '      looking for modules in /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules\n' +
+    '        single file module\n' +
+    '          using description file: /Users/aneesh/Desktop/Med School/HFP/frontend/package.json (relative path: ./node_modules/tailwindcss)\n' +
+    '            no extension\n' +
+    '              /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss is not a file\n' +
+    '            .css\n' +
+    "              /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss.css doesn't exist\n" +
+    '        existing directory /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss\n' +
+    '          using description file: /Users/aneesh/Desktop/Med School/HFP/frontend/package.json (relative path: ./node_modules/tailwindcss)\n' +
+    '            using description file: /Users/aneesh/Desktop/Med School/HFP/frontend/package.json (relative path: ./node_modules/tailwindcss)\n' +
+    '              no extension\n' +
+    '                /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss is not a file\n' +
+    '              .css\n' +
+    "                /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss.css doesn't exist\n" +
+    '              as directory\n' +
+    '                existing directory /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss\n' +
+    '                  using description file: /Users/aneesh/Desktop/Med School/HFP/frontend/package.json (relative path: ./node_modules/tailwindcss)\n' +
+    '                    using path: /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss/index\n' +
+    '                      using description file: /Users/aneesh/Desktop/Med School/HFP/frontend/package.json (relative path: ./node_modules/tailwindcss/index)\n' +
+    '                        no extension\n' +
+    "                          /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss/index doesn't exist\n" +
+    '                        .css\n' +
+    "                          /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/tailwindcss/index.css doesn't exist\n" +
+    "      /Users/aneesh/Desktop/Med School/HFP/node_modules doesn't exist or is not a directory\n" +
+    "      /Users/aneesh/Desktop/Med School/node_modules doesn't exist or is not a directory\n" +
+    "      /Users/aneesh/Desktop/node_modules doesn't exist or is not a directory\n" +
+    "      /Users/aneesh/node_modules doesn't exist or is not a directory\n" +
+    "      /Users/node_modules doesn't exist or is not a directory\n" +
+    "      /node_modules doesn't exist or is not a directory"
+}
+ ⨯ ./src/app/globals.css:1:1
+Syntax error: tailwindcss: /Users/aneesh/Desktop/Med School/HFP/frontend/src/app/globals.css Can't resolve 'tailwindcss' in '/Users/aneesh/Desktop/Med School/HFP/frontend/src/app'
+
+> 1 | @import "tailwindcss";
+    | ^
+  2 | 
+  3 | :root {
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!/Users/aneesh/Desktop/Med School/HFP/frontend/src/app/globals.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+ ⨯ [Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/dev/on-demand-entry-handler.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/plugins/flight-client-entry-plugin.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/router-server.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/dev/on-demand-entry-handler.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/plugins/flight-client-entry-plugin.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/router-server.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/dev/on-demand-entry-handler.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/plugins/flight-client-entry-plugin.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack-config.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/router-server.js
+- /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 22562ms
+ GET / 500 in 5ms
+ ○ Compiling /_error ...
+<w> [webpack.cache.PackFileCacheStrategy] Restoring failed for ResolverCachePlugin|normal|default|alias=[|server-only$=|next/dist/compiled/server-only/index|client-only$=|next/dist/compiled/client-only/index|next/dist/compiled/client-only$=|next/dist/compiled/client-only/index|next/dist/compiled/server-only=|next/dist/compiled/server-only/index|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/head.js=|next/dist/client/components/noop-head|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/image.js=|next/dist/api/image|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/constants.js=|next/dist/api/constants|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/router.js=|next/dist/api/router|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dynamic.js=|next/dist/api/app-dynamic|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/script.js=|next/dist/api/script|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/link.js=|next/dist/client/app-dir/link|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/form.js=|next/dist/api/form|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/navigation.js=|next/dist/api/navigation|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/headers.js=|next/dist/api/headers|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/og.js=|next/dist/api/og|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/server.js=|next/dist/api/server|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/document.js=|next/dist/api/document|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/app.js=|next/dist/api/app|react$=|next/dist/compiled/react|react-dom$=|next/dist/compiled/react-dom|react/jsx-runtime$=|next/dist/compiled/react/jsx-runtime|react/jsx-dev-runtime$=|next/dist/compiled/react/jsx-dev-runtime|react/compiler-runtime$=|next/dist/compiled/react/compiler-runtime|react-dom/client$=|next/dist/compiled/react-dom/client|react-dom/server$=|next/dist/compiled/react-dom/server|react-dom/server.browser$=|next/dist/compiled/react-dom/server.browser|react-dom/static$=|next/dist/compiled/react-dom/static|react-dom/static.edge$=|next/dist/compiled/react-dom/static.edge|react-dom/static.browser$=|next/dist/compiled/react-dom/static.browser|react-dom/server.edge$=|next/dist/build/webpack/alias/react-dom-server-edge.js|react-server-dom-webpack/client$=|next/dist/compiled/react-server-dom-webpack/client|react-server-dom-webpack/client.edge$=|next/dist/compiled/react-server-dom-webpack/client.edge|react-server-dom-webpack/server.edge$=|next/dist/compiled/react-server-dom-webpack/server.edge|react-server-dom-webpack/server.node$=|next/dist/compiled/react-server-dom-webpack/server.node|react-server-dom-webpack/static.edge$=|next/dist/compiled/react-server-dom-webpack/static.edge|@vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts=|next/dist/client/dev/noop-turbopack-hmr|next=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next|]|mainFields=[|0=|browser|1=|module|2=|main|]|fallback=[|assert=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/assert/assert.js|buffer=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/buffer/index.js|constants=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/constants-browserify/constants.json|crypto=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/crypto-browserify/index.js|domain=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/domain-browser/index.js|http=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/stream-http/index.js|https=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/https-browserify/index.js|os=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/os-browserify/browser.js|path=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/path-browserify/index.js|punycode=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/punycode/punycode.js|process=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/polyfills/process.js|querystring=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/querystring-es3/index.js|stream=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/stream-browserify/index.js|string_decoder=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/string_decoder/string_decoder.js|sys=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/util/util.js|timers=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/timers-browserify/main.js|tty=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/tty-browserify/index.js|util=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/util/util.js|vm=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/vm-browserify/index.js|zlib=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/browserify-zlib/index.js|events=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/events/events.js|setImmediate=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/setimmediate/setImmediate.js|]|dependencyType=|esm|path=|/Users/aneesh/Desktop/Med School/HFP/frontend/src/components|request=|lucide-react from pack: Error: ETIMEDOUT: connection timed out, read
+<w> [webpack.cache.PackFileCacheStrategy] Restoring failed for ResolverCachePlugin|normal|default|alias=[|server-only$=|next/dist/compiled/server-only/index|client-only$=|next/dist/compiled/client-only/index|next/dist/compiled/client-only$=|next/dist/compiled/client-only/index|next/dist/compiled/server-only=|next/dist/compiled/server-only/index|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/head.js=|next/dist/client/components/noop-head|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/image.js=|next/dist/api/image|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/constants.js=|next/dist/api/constants|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/router.js=|next/dist/api/router|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dynamic.js=|next/dist/api/app-dynamic|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/script.js=|next/dist/api/script|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/link.js=|next/dist/client/app-dir/link|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/form.js=|next/dist/api/form|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/navigation.js=|next/dist/api/navigation|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/headers.js=|next/dist/api/headers|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/og.js=|next/dist/api/og|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/server.js=|next/dist/api/server|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/document.js=|next/dist/api/document|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/app.js=|next/dist/api/app|react$=|next/dist/compiled/react|react-dom$=|next/dist/compiled/react-dom|react/jsx-runtime$=|next/dist/compiled/react/jsx-runtime|react/jsx-dev-runtime$=|next/dist/compiled/react/jsx-dev-runtime|react/compiler-runtime$=|next/dist/compiled/react/compiler-runtime|react-dom/client$=|next/dist/compiled/react-dom/client|react-dom/server$=|next/dist/compiled/react-dom/server|react-dom/server.browser$=|next/dist/compiled/react-dom/server.browser|react-dom/static$=|next/dist/compiled/react-dom/static|react-dom/static.edge$=|next/dist/compiled/react-dom/static.edge|react-dom/static.browser$=|next/dist/compiled/react-dom/static.browser|react-dom/server.edge$=|next/dist/build/webpack/alias/react-dom-server-edge.js|react-server-dom-webpack/client$=|next/dist/compiled/react-server-dom-webpack/client|react-server-dom-webpack/client.edge$=|next/dist/compiled/react-server-dom-webpack/client.edge|react-server-dom-webpack/server.edge$=|next/dist/compiled/react-server-dom-webpack/server.edge|react-server-dom-webpack/server.node$=|next/dist/compiled/react-server-dom-webpack/server.node|react-server-dom-webpack/static.edge$=|next/dist/compiled/react-server-dom-webpack/static.edge|@vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts=|next/dist/client/dev/noop-turbopack-hmr|next=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next|]|mainFields=[|0=|browser|1=|module|2=|main|]|fallback=[|assert=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/assert/assert.js|buffer=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/buffer/index.js|constants=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/constants-browserify/constants.json|crypto=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/crypto-browserify/index.js|domain=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/domain-browser/index.js|http=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/stream-http/index.js|https=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/https-browserify/index.js|os=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/os-browserify/browser.js|path=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/path-browserify/index.js|punycode=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/punycode/punycode.js|process=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/polyfills/process.js|querystring=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/querystring-es3/index.js|stream=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/stream-browserify/index.js|string_decoder=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/string_decoder/string_decoder.js|sys=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/util/util.js|timers=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/timers-browserify/main.js|tty=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/tty-browserify/index.js|util=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/util/util.js|vm=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/vm-browserify/index.js|zlib=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/browserify-zlib/index.js|events=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/events/events.js|setImmediate=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/setimmediate/setImmediate.js|]|dependencyType=|esm|path=|/Users/aneesh/Desktop/Med School/HFP/frontend/src/components|request=|clsx from pack: Error: ETIMEDOUT: connection timed out, read
+<w> [webpack.cache.PackFileCacheStrategy] Restoring failed for ResolverCachePlugin|normal|default|alias=[|server-only$=|next/dist/compiled/server-only/index|client-only$=|next/dist/compiled/client-only/index|next/dist/compiled/client-only$=|next/dist/compiled/client-only/index|next/dist/compiled/server-only=|next/dist/compiled/server-only/index|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/head.js=|next/dist/client/components/noop-head|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/image.js=|next/dist/api/image|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/constants.js=|next/dist/api/constants|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/router.js=|next/dist/api/router|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dynamic.js=|next/dist/api/app-dynamic|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/script.js=|next/dist/api/script|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/link.js=|next/dist/client/app-dir/link|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/form.js=|next/dist/api/form|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/navigation.js=|next/dist/api/navigation|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/headers.js=|next/dist/api/headers|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/og.js=|next/dist/api/og|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/server.js=|next/dist/api/server|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/document.js=|next/dist/api/document|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/app.js=|next/dist/api/app|react$=|next/dist/compiled/react|react-dom$=|next/dist/compiled/react-dom|react/jsx-runtime$=|next/dist/compiled/react/jsx-runtime|react/jsx-dev-runtime$=|next/dist/compiled/react/jsx-dev-runtime|react/compiler-runtime$=|next/dist/compiled/react/compiler-runtime|react-dom/client$=|next/dist/compiled/react-dom/client|react-dom/server$=|next/dist/compiled/react-dom/server|react-dom/server.browser$=|next/dist/compiled/react-dom/server.browser|react-dom/static$=|next/dist/compiled/react-dom/static|react-dom/static.edge$=|next/dist/compiled/react-dom/static.edge|react-dom/static.browser$=|next/dist/compiled/react-dom/static.browser|react-dom/server.edge$=|next/dist/build/webpack/alias/react-dom-server-edge.js|react-server-dom-webpack/client$=|next/dist/compiled/react-server-dom-webpack/client|react-server-dom-webpack/client.edge$=|next/dist/compiled/react-server-dom-webpack/client.edge|react-server-dom-webpack/server.edge$=|next/dist/compiled/react-server-dom-webpack/server.edge|react-server-dom-webpack/server.node$=|next/dist/compiled/react-server-dom-webpack/server.node|react-server-dom-webpack/static.edge$=|next/dist/compiled/react-server-dom-webpack/static.edge|@vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts=|next/dist/client/dev/noop-turbopack-hmr|next=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next|]|mainFields=[|0=|browser|1=|module|2=|main|]|fallback=[|assert=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/assert/assert.js|buffer=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/buffer/index.js|constants=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/constants-browserify/constants.json|crypto=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/crypto-browserify/index.js|domain=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/domain-browser/index.js|http=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/stream-http/index.js|https=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/https-browserify/index.js|os=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/os-browserify/browser.js|path=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/path-browserify/index.js|punycode=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/punycode/punycode.js|process=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/polyfills/process.js|querystring=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/querystring-es3/index.js|stream=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/stream-browserify/index.js|string_decoder=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/string_decoder/string_decoder.js|sys=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/util/util.js|timers=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/timers-browserify/main.js|tty=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/tty-browserify/index.js|util=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/util/util.js|vm=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/vm-browserify/index.js|zlib=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/browserify-zlib/index.js|events=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/events/events.js|setImmediate=|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/setimmediate/setImmediate.js|]|dependencyType=|esm|path=|/Users/aneesh/Desktop/Med School/HFP/frontend/src/components|request=|tailwind-merge from pack: Error: ETIMEDOUT: connection timed out, read
+ ⨯ ./node_modules/next/dist/build/polyfills/process.js:3:1
+Module not found: /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/process/package.json (directory description file): /Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/compiled/process/package.json (directory description file): Error: No file content
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/react/cjs/react.development.js
+./node_modules/react/index.js
+./node_modules/next/dist/client/router.js
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 135953ms
+ GET / 500 in 228ms
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 50399ms
+ GET / 500 in 226ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 644ms
+ GET / 500 in 216ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 672ms
+ GET / 500 in 214ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 674ms
+ GET / 500 in 221ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 650ms
+ GET / 500 in 212ms

@@ -1,0 +1,48 @@
+name: pulm_pft_anatomy
+nodes:
+  - id: pulm.pft.tlc
+    label: Total Lung Capacity (TLC)
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Max volume of air the lungs can hold."
+  - id: pulm.pft.frc
+    label: Functional Residual Capacity (FRC)
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Volume remaining after a normal tidal breath."
+  - id: pulm.pft.fev1_fvc
+    label: FEV1 / FVC Ratio
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Clinical marker for airway obstruction."
+  - id: pulm.anatomy.lobes
+    label: Lung Lobar Structure
+    domain: pulm
+    type: variable
+    state_type: qualitative
+  - id: pulm.anatomy.pleura
+    label: Pleural Integrity
+    domain: pulm
+    type: variable
+    state_type: qualitative
+    description: "Maintenance of the subatmospheric intrapleural pressure."
+
+edges:
+  - source: pulm.mechanics.compliance
+    target: pulm.pft.tlc
+    rel: increases
+    weight: 1.0
+    description: "In restrictive disease (low compliance), TLC decreases. In obstructive disease (high compliance/emphysema), TLC increases."
+  - source: pulm.mechanics.resistance
+    target: pulm.pft.fev1_fvc
+    rel: decreases
+    weight: 0.95
+    description: "High resistance in bronchioles (asthma/COPD) reduces the FEV1/FVC ratio."
+  - source: pulm.anatomy.pleura
+    target: pulm.mechanics.intrapleural_pressure
+    rel: decreases
+    weight: 1.0
+    description: "Intact pleura maintains negative intrapleural pressure. Loss of integrity (Pneumothorax) increases it to zero/atmospheric."

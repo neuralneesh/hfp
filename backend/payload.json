@@ -1,0 +1,21 @@
+{
+    "perturbations": [
+        {
+            "node_id": "cardio.hemodynamics.heart_rate",
+            "op": "increase"
+        }
+    ],
+    "context": {
+        "ace_inhibitor": false,
+        "beta_blocker": false,
+        "hf": true,
+        "dehydration": true,
+        "ckd": true,
+        "copd": true
+    },
+    "options": {
+        "max_hops": 8,
+        "min_confidence": 0.1,
+        "time_window": "all"
+    }
+}
