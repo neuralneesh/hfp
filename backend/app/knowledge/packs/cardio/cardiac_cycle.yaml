@@ -1,0 +1,245 @@
+name: cardio_cardiac_cycle
+description: Cardiac cycle phases - systole, diastole, and transitions
+nodes:
+  # Main phases
+  - id: cardio.cycle.diastole
+    label: Diastole
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "The relaxation phase of the cardiac cycle when ventricles fill with blood."
+
+  - id: cardio.cycle.systole
+    label: Systole
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "The contraction phase of the cardiac cycle when blood is ejected."
+
+  # Isovolumetric phases
+  - id: cardio.cycle.isovolumetric_contraction
+    label: Isovolumetric Contraction
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Brief phase between mitral valve closure and aortic valve opening - pressure rises in ventricle but no volume change."
+
+  - id: cardio.cycle.isovolumetric_relaxation
+    label: Isovolumetric Relaxation
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Brief phase between aortic valve closure and mitral valve opening - pressure falls in ventricle but no volume change."
+
+  # Filling and ejection
+  - id: cardio.cycle.ventricular_filling
+    label: Ventricular Filling
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Blood flow from atria into ventricles during diastole."
+
+  - id: cardio.cycle.ventricular_ejection
+    label: Ventricular Ejection
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Blood ejection from ventricles into aorta/pulmonary artery during systole."
+
+  # Valve events
+  - id: cardio.cycle.mitral_valve_open
+    label: Mitral Valve Open
+    domain: cardio
+    type: event
+    state_type: qualitative
+    description: "Opening of mitral (bicuspid) valve - marks start of ventricular filling."
+
+  - id: cardio.cycle.mitral_valve_closed
+    label: Mitral Valve Closed
+    domain: cardio
+    type: event
+    state_type: qualitative
+    description: "Closure of mitral valve - marks start of isovolumetric contraction."
+
+  - id: cardio.cycle.aortic_valve_open
+    label: Aortic Valve Open
+    domain: cardio
+    type: event
+    state_type: qualitative
+    description: "Opening of aortic valve - marks start of ventricular ejection."
+
+  - id: cardio.cycle.aortic_valve_closed
+    label: Aortic Valve Closed
+    domain: cardio
+    type: event
+    state_type: qualitative
+    description: "Closure of aortic valve - marks start of isovolumetric relaxation."
+
+  # Timing markers
+  - id: cardio.cycle.s1
+    label: S1 (First Heart Sound)
+    domain: cardio
+    type: event
+    state_type: qualitative
+    description: "Caused by mitral and tricuspid valve closure - marks beginning of systole."
+
+  - id: cardio.cycle.s2
+    label: S2 (Second Heart Sound)
+    domain: cardio
+    type: event
+    state_type: qualitative
+    description: "Caused by aortic and pulmonic valve closure - marks end of systole."
+
+  # Volume/pressure states
+  - id: cardio.cycle.end_systolic_volume
+    label: End-Systolic Volume (ESV)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+    description: "Volume of blood remaining in ventricle after systole."
+
+  - id: cardio.cycle.end_diastolic_volume
+    label: End-Diastolic Volume (EDV)
+    domain: cardio
+    type: variable
+    state_type: qualitative
+    description: "Volume of blood in ventricle at end of diastole."
+
+edges:
+  # Phase sequence
+  - source: cardio.cycle.diastole
+    target: cardio.cycle.ventricular_filling
+    rel: enables
+    weight: 1.0
+    description: "Diastole allows ventricular filling to occur."
+
+  - source: cardio.cycle.ventricular_filling
+    target: cardio.cycle.mitral_valve_closed
+    rel: precedes
+    weight: 1.0
+    description: "Filling ends when mitral valve closes."
+
+  - source: cardio.cycle.mitral_valve_closed
+    target: cardio.cycle.isovolumetric_contraction
+    rel: precedes
+    weight: 1.0
+    description: "Mitral closure starts isovolumetric contraction."
+
+  - source: cardio.cycle.isovolumetric_contraction
+    target: cardio.cycle.aortic_valve_open
+    rel: precedes
+    weight: 1.0
+    description: "Contraction builds pressure until aortic valve opens."
+
+  - source: cardio.cycle.aortic_valve_open
+    target: cardio.cycle.ventricular_ejection
+    rel: enables
+    weight: 1.0
+    description: "Aortic opening enables ejection."
+
+  - source: cardio.cycle.ventricular_ejection
+    target: cardio.cycle.aortic_valve_closed
+    rel: precedes
+    weight: 1.0
+    description: "Ejection ends when aortic valve closes."
+
+  - source: cardio.cycle.aortic_valve_closed
+    target: cardio.cycle.isovolumetric_relaxation
+    rel: precedes
+    weight: 1.0
+    description: "Aortic closure starts isovolumetric relaxation."
+
+  - source: cardio.cycle.isovolumetric_relaxation
+    target: cardio.cycle.mitral_valve_open
+    rel: precedes
+    weight: 1.0
+    description: "Relaxation lowers pressure until mitral opens."
+
+  - source: cardio.cycle.mitral_valve_open
+    target: cardio.cycle.ventricular_filling
+    rel: enables
+    weight: 1.0
+    description: "Mitral opening enables filling - cycle continues."
+
+  # Complete cycle loop
+  - source: cardio.cycle.ventricular_filling
+    target: cardio.cycle.diastole
+    rel: part_of
+    weight: 1.0
+
+  - source: cardio.cycle.ventricular_ejection
+    target: cardio.cycle.systole
+    rel: part_of
+    weight: 1.0
+
+  # Heart sounds
+  - source: cardio.cycle.mitral_valve_closed
+    target: cardio.cycle.s1
+    rel: causes
+    weight: 1.0
+    description: "S1 caused by AV valve closure."
+
+  - source: cardio.cycle.aortic_valve_closed
+    target: cardio.cycle.s2
+    rel: causes
+    weight: 1.0
+    description: "S2 caused by semilunar valve closure."
+
+  # Volume relationships
+  - source: cardio.cycle.ventricular_filling
+    target: cardio.cycle.end_diastolic_volume
+    rel: increases
+    weight: 1.0
+    description: "Filling increases end-diastolic volume."
+
+  - source: cardio.cycle.ventricular_ejection
+    target: cardio.cycle.end_systolic_volume
+    rel: decreases
+    weight: 1.0
+    description: "Ejection decreases end-systolic volume."
+
+  # Link to hemodynamics
+  - source: cardio.cycle.end_diastolic_volume
+    target: cardio.hemodynamics.stroke_volume
+    rel: increases
+    weight: 0.9
+    description: "EDV determines stroke volume (Frank-Starling)."
+
+  - source: cardio.cycle.end_systolic_volume
+    target: cardio.hemodynamics.stroke_volume
+    rel: decreases
+    weight: 0.9
+    description: "Lower ESV means more blood ejected."
+
+  # Heart rate effects
+  - source: cardio.hemodynamics.heart_rate
+    target: cardio.cycle.diastole
+    rel: decreases
+    weight: 0.9
+    description: "Tachycardia shortens diastole more than systole."
+
+  - source: cardio.hemodynamics.heart_rate
+    target: cardio.cycle.ventricular_filling
+    rel: decreases
+    weight: 0.8
+    description: "High HR reduces filling time."
+
+  # Sympathetic effects
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.cycle.systole
+    rel: increases
+    weight: 0.8
+    description: "Sympathetic increases contractility, shortening systole."
+
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.cycle.diastole
+    rel: decreases
+    weight: 0.7
+    description: "Sympathetic speeds up the cycle."
+
+  # Parasympathetic effects
+  - source: neuro.ans.parasympathetic_tone
+    target: cardio.cycle.diastole
+    rel: increases
+    weight: 0.8
+    description: "Vagal tone prolongs diastole and filling."
