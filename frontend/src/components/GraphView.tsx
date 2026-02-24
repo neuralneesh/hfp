@@ -19,6 +19,7 @@ interface GraphViewProps {
     edges: GEdge[];
     affectedNodes: AffectedNode[];
     perturbations: Perturbation[];
+    selectedNodeId?: string | null;
     onNodeClick: (nodeId: string) => void;
     dimUnaffected?: boolean;
     settings: import('@/lib/types').GraphSettings;
@@ -53,6 +54,38 @@ const FCOSE_LAYOUT_OPTIONS = {
     initialEnergyOnIncremental: 1.0,
 };
 
+const getLayoutOptions = (settings: import('@/lib/types').GraphSettings): any => {
+    if (settings.groupByDomain) {
+        return {
+            name: 'fcose',
+            quality: 'proof',
+            randomize: true,
+            animate: true,
+            animationDuration: 1000,
+            fit: true,
+            padding: 60,
+            nodeDimensionsIncludeLabels: true,
+            uniformNodeDimensions: false,
+            nodeRepulsion: 8000,
+            idealEdgeLength: 80,
+            edgeElasticity: 0.45,
+            nestingFactor: 0.5,
+            gravity: 0.4,
+            gravityRange: 100,
+            gravityCompound: 1.5,
+            numIter: 5000,
+            tilingPaddingVertical: 20,
+            tilingPaddingHorizontal: 20,
+        };
+    }
+
+    return {
+        ...FCOSE_LAYOUT_OPTIONS,
+        nodeRepulsion: settings.nodeRepulsion,
+        idealEdgeLength: settings.idealEdgeLength,
+    };
+};
+
 export interface GraphViewRef {
     fit: () => void;
     runLayout: () => void;
@@ -66,10 +99,11 @@ const DOMAIN_COLORS: Record<string, string> = {
     neuro: '#8b5cf6', // violet-500
 };
 
-const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, onNodeClick, dimUnaffected, settings }, ref) => {
+const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, onNodeClick, dimUnaffected, settings }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const pulseIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const clampedFontSize = Math.max(16, Math.min(42, settings.fontSize));
 
     useImperativeHandle(ref, () => ({
         fit: () => {
@@ -77,12 +111,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
         },
         runLayout: () => {
             if (!cyRef.current) return;
-            const layoutOptions: any = {
-                ...FCOSE_LAYOUT_OPTIONS,
-                nodeRepulsion: settings.nodeRepulsion,
-                idealEdgeLength: settings.idealEdgeLength,
-            };
-            cyRef.current.layout(layoutOptions).run();
+            cyRef.current.layout(getLayoutOptions(settings)).run();
         }
     }));
 
@@ -96,26 +125,38 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
         }
 
         const cy = cyRef.current;
-        const perturbationIds = new Set(perturbations.map(p => p.node_id));
+        const emphasizedNodeIds = new Set(perturbations.map(p => p.node_id));
+        if (selectedNodeId) emphasizedNodeIds.add(selectedNodeId);
 
-        if (perturbationIds.size > 0) {
+        if (emphasizedNodeIds.size > 0) {
             pulseIntervalRef.current = setInterval(() => {
                 cy.nodes().forEach(node => {
-                    if (perturbationIds.has(node.id())) {
-                        const baseSize = 8;
-                        const pulseSize = 14;
+                    if (emphasizedNodeIds.has(node.id()) && !node.data('isParent')) {
+                        const baseSize = Math.max(14, settings.nodeSize + 4);
+                        const pulseSize = Math.max(26, Math.round(baseSize * 2.1));
 
                         node.stop(true); // Stop existing animations
                         node.animate({
-                            style: { 'width': pulseSize, 'height': pulseSize },
+                            style: {
+                                'width': pulseSize,
+                                'height': pulseSize,
+                                'border-width': 5,
+                                'border-color': '#0ea5e9',
+                                'opacity': 1,
+                            },
                         }, {
-                            duration: 400,
+                            duration: 550,
                             easing: 'ease-in-out-sine',
                             complete: () => {
                                 node.animate({
-                                    style: { 'width': baseSize, 'height': baseSize },
+                                    style: {
+                                        'width': baseSize,
+                                        'height': baseSize,
+                                        'border-width': 2,
+                                        'border-color': '#0284c7',
+                                    },
                                 }, {
-                                    duration: 600,
+                                    duration: 850,
                                     easing: 'ease-in-out-sine'
                                 });
                             }
@@ -128,7 +169,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
         return () => {
             if (pulseIntervalRef.current) clearInterval(pulseIntervalRef.current);
         };
-    }, [perturbations]);
+    }, [perturbations, selectedNodeId, settings.nodeSize]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -168,7 +209,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                             'color': '#475569', // slate-600
                             'text-valign': 'bottom',
                             'text-halign': 'center',
-                            'font-size': `${settings.fontSize}px`,
+                            'font-size': `${clampedFontSize}px`,
                             'font-family': 'Inter, system-ui, sans-serif',
                             'text-margin-y': '8px',
                             'text-wrap': 'wrap',
@@ -251,11 +292,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                         }
                     }
                 ],
-                layout: {
-                    ...FCOSE_LAYOUT_OPTIONS,
-                    nodeRepulsion: settings.nodeRepulsion,
-                    idealEdgeLength: settings.idealEdgeLength,
-                }
+                layout: getLayoutOptions(settings)
             });
 
             cyRef.current.on('tap', 'node', (evt) => {
@@ -296,32 +333,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                 }))
             ];
             cy.json({ elements });
-            const layoutOptions: any = settings.groupByDomain ? {
-                name: 'fcose',
-                quality: 'proof',
-                randomize: true,
-                animate: true,
-                animationDuration: 1000,
-                fit: true,
-                padding: 60,
-                nodeDimensionsIncludeLabels: true,
-                uniformNodeDimensions: false,
-                nodeRepulsion: 8000,
-                idealEdgeLength: 80,
-                edgeElasticity: 0.45,
-                nestingFactor: 0.5,
-                gravity: 0.4,
-                gravityRange: 100,
-                gravityCompound: 1.5,
-                numIter: 5000,
-                tilingPaddingVertical: 20,
-                tilingPaddingHorizontal: 20,
-            } : {
-                ...FCOSE_LAYOUT_OPTIONS,
-                nodeRepulsion: settings.nodeRepulsion,
-                idealEdgeLength: settings.idealEdgeLength,
-            };
-            cy.layout(layoutOptions).run();
+            cy.layout(getLayoutOptions(settings)).run();
         }
 
         // Always update visual state based on affectedNodes
@@ -377,7 +389,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             .style({
                 'width': settings.nodeSize,
                 'height': settings.nodeSize,
-                'font-size': `${settings.fontSize}px`,
+                'font-size': `${clampedFontSize}px`,
             })
             .selector('edge')
             .style({
@@ -386,7 +398,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             })
             .update();
 
-    }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings]);
+    }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings, clampedFontSize]);
 
     return <div ref={containerRef} className="w-full h-full bg-[#f8fafc]" />;
 });

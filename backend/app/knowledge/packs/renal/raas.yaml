@@ -54,15 +54,22 @@ edges:
     target: renal.tubule.na_reabsorption
     rel: increases
     weight: 0.9
+    context:
+      ckd: false
+    description: "CKD reduces effective tubular responsiveness to mineralocorticoid signaling."
   - source: renal.raas.mr_receptor
     target: renal.metabolism.potassium
     rel: decreases
     weight: 0.8
+    context:
+      ckd: false
     description: "Aldosterone stimulates K+ secretion in exchange for Na+"
   - source: renal.raas.mr_receptor
     target: acidbase.blood.h_concentration
     rel: decreases
     weight: 0.7
+    context:
+      ckd: false
     description: "MR activation in alpha-intercalated cells promotes H+ secretion (Acid loss)"
   - source: cardio.hemodynamics.map
     target: renal.raas.renin

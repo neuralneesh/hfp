@@ -1,69 +1,13 @@
 
 > frontend@0.1.0 dev
-> next dev
+> next dev --hostname 127.0.0.1 --port 3000
 
    ▲ Next.js 15.1.7
-   - Local:        http://localhost:3000
-   - Network:      http://172.16.33.199:3000
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
 
  ✓ Starting...
-<w> [webpack.cache.PackFileCacheStrategy] Restoring failed for CopyFilePlugin|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/polyfills/polyfill-nomodule.js from pack: Error: ETIMEDOUT: connection timed out, read
- ✓ Ready in 20s
+ ✓ Ready in 982ms
  ○ Compiling / ...
-<w> [webpack.cache.PackFileCacheStrategy] Restoring failed for Compilation/modules|javascript/auto|/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/loaders/next-flight-client-module-loader.js!/Users/aneesh/Desktop/Med School/HFP/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js??ruleSet[1].rules[15].oneOf[6].use[1]!/Users/aneesh/Desktop/Med School/HFP/frontend/src/lib/api.ts|ssr from pack: Error: ETIMEDOUT: connection timed out, read
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, stat '/Users/aneesh/Desktop/Med School/HFP/frontend/.next/cache/webpack/server-development/3.pack.gz'
- ⨯ ./node_modules/axios/lib/axios.js
-Attempted import error: './core/mergeConfig.js' does not contain a default export (imported as 'mergeConfig').
-
-Import trace for requested module:
-./node_modules/axios/lib/axios.js
-./node_modules/axios/index.js
-./src/lib/api.ts
-./src/app/page.tsx
- ⨯ ./node_modules/axios/lib/axios.js
-Attempted import error: './core/mergeConfig.js' does not contain a default export (imported as 'mergeConfig').
-
-Import trace for requested module:
-./node_modules/axios/lib/axios.js
-./node_modules/axios/index.js
-./src/lib/api.ts
-./src/app/page.tsx
- ⨯ ./node_modules/axios/lib/axios.js
-Attempted import error: './core/mergeConfig.js' does not contain a default export (imported as 'mergeConfig').
-
-Import trace for requested module:
-./node_modules/axios/lib/axios.js
-./node_modules/axios/index.js
-./src/lib/api.ts
-./src/app/page.tsx
- GET / 500 in 28567ms
- GET / 500 in 170ms
- ⨯ ./node_modules/axios/lib/axios.js
-Attempted import error: './core/mergeConfig.js' does not contain a default export (imported as 'mergeConfig').
-
-Import trace for requested module:
-./node_modules/axios/lib/axios.js
-./node_modules/axios/index.js
-./src/lib/api.ts
-./src/app/page.tsx
- GET /_next/static/webpack/dee5f8a934706235.webpack.hot-update.json 500 in 1453ms
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET /_next/static/webpack/dee5f8a934706235.webpack.hot-update.json 500 in 26ms
- GET / 500 in 83ms
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET / 500 in 85ms
- GET / 500 in 72ms
- GET / 500 in 208ms
- GET / 500 in 91ms
- GET / 500 in 126ms
- GET / 500 in 94ms
- GET / 500 in 28ms
- ✓ Compiled /_not-found in 1062ms (1271 modules)
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET /_next/static/webpack/dee5f8a934706235.webpack.hot-update.json 404 in 1179ms
- GET /_next/static/webpack/dee5f8a934706235.webpack.hot-update.json 404 in 1169ms
- ○ Compiling / ...
- ✓ Compiled / in 504ms (804 modules)
- GET / 200 in 867ms
- GET / 200 in 864ms
+ ✓ Compiled / in 2.9s (1498 modules)
+ HEAD / 200 in 3079ms

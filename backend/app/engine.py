@@ -1,14 +1,15 @@
-from typing import List, Dict, Set, Tuple, Optional
+from typing import List, Dict, Tuple, Optional
 from .models import (
     Node, Edge, Perturbation, SimulationRequest, SimulationResponse, 
-    AffectedNode, TraceStep, SimulationOptions
+    AffectedNode, TraceStep, Syndrome
 )
 import collections
 
 class ReasoningEngine:
-    def __init__(self, nodes: Dict[str, Node], edges: List[Edge]):
+    def __init__(self, nodes: Dict[str, Node], edges: List[Edge], syndromes: Optional[List[Syndrome]] = None):
         self.nodes = nodes
         self.edges = edges
+        self.syndromes = syndromes or []
         self.adj: Dict[str, List[Edge]] = collections.defaultdict(list)
         for edge in self.edges:
             self.adj[edge.source].append(edge)
@@ -17,9 +18,6 @@ class ReasoningEngine:
         # node_states: node_id -> tick -> AffectedNode
         node_states: Dict[str, Dict[int, AffectedNode]] = collections.defaultdict(dict)
         traces: Dict[str, List[TraceStep]] = collections.defaultdict(list)
-        
-        # Track manual perturbations to prevent overrides
-        perturbation_ids = {p.node_id for p in request.perturbations}
         
         time_map = {"immediate": 0, "minutes": 1, "hours": 2, "days": 3}
         max_tick = time_map.get(request.options.time_window, 3) if request.options.time_window != "all" else 3
@@ -100,44 +98,7 @@ class ReasoningEngine:
                         "steps": steps
                     })
                     
-                    # Store unique trace paths
-                    new_trace = TraceStep(path=path, steps=steps, confidence=target_conf)
-                    if target_id not in traces:
-                        traces[target_id] = [new_trace]
-                    else:
-                        # Keep top 3 traces per node
-                        path_exists = False
-                        for i, existing in enumerate(traces[target_id]):
-                            if existing.path == path:
-                                if target_conf > existing.confidence:
-                                    traces[target_id][i] = new_trace
-                                path_exists = True
-                                break
-                        if not path_exists:
-                            traces[target_id].append(new_trace)
-                            traces[target_id].sort(key=lambda x: x.confidence, reverse=True)
-                            traces[target_id] = traces[target_id][:3]
-
-                    if delay_val == 0:
-                        nodes_to_resolve.add(target_id)
-                    
-                    # Store unique trace paths
-                    new_trace = TraceStep(path=path, steps=steps, confidence=target_conf)
-                    if target_id not in traces:
-                        traces[target_id] = [new_trace]
-                    else:
-                        # Keep top 3 traces per node
-                        path_exists = False
-                        for i, existing in enumerate(traces[target_id]):
-                            if existing.path == path:
-                                if target_conf > existing.confidence:
-                                    traces[target_id][i] = new_trace
-                                path_exists = True
-                                break
-                        if not path_exists:
-                            traces[target_id].append(new_trace)
-                            traces[target_id].sort(key=lambda x: x.confidence, reverse=True)
-                            traces[target_id] = traces[target_id][:3]
+                    self._upsert_trace(traces, target_id, path, steps, target_conf)
 
                     if delay_val == 0:
                         nodes_to_resolve.add(target_id)
@@ -156,6 +117,79 @@ class ReasoningEngine:
             traces=dict(traces),
             max_ticks=max_tick
         )
+
+    def _upsert_trace(
+        self,
+        traces: Dict[str, List[TraceStep]],
+        target_id: str,
+        path: List[str],
+        steps: List[str],
+        confidence: float,
+    ) -> None:
+        summary = self._build_trace_summary(path)
+        new_trace = TraceStep(
+            path=path,
+            steps=steps,
+            confidence=confidence,
+            summary=summary,
+        )
+
+        if target_id not in traces:
+            traces[target_id] = [new_trace]
+            return
+
+        path_exists = False
+        for i, existing in enumerate(traces[target_id]):
+            if existing.path == path:
+                if confidence > existing.confidence:
+                    traces[target_id][i] = new_trace
+                path_exists = True
+                break
+
+        if not path_exists:
+            traces[target_id].append(new_trace)
+
+        traces[target_id].sort(key=lambda x: x.confidence, reverse=True)
+        traces[target_id] = traces[target_id][:3]
+
+    def _build_trace_summary(self, path: List[str]) -> Optional[str]:
+        if not path or len(path) < 2:
+            return None
+
+        matched_items: List[Tuple[int, str]] = []
+        for syndrome in self.syndromes:
+            start_idx = self._subsequence_start_index(path, syndrome.sequence)
+            if start_idx is not None:
+                matched_items.append((start_idx, syndrome.label))
+
+        if not matched_items:
+            return None
+
+        matched_items.sort(key=lambda item: item[0])
+        deduped: List[str] = []
+        for _, label in matched_items:
+            if label not in deduped:
+                deduped.append(label)
+
+        if len(deduped) == 1:
+            return deduped[0]
+        if len(deduped) == 2:
+            return f"{deduped[0]} followed by {deduped[1]}"
+        return ", ".join(deduped[:-1]) + f", followed by {deduped[-1]}"
+
+    def _subsequence_start_index(self, path: List[str], sequence: List[str]) -> Optional[int]:
+        if not sequence:
+            return None
+        seq_idx = 0
+        first_match_idx: Optional[int] = None
+        for current_idx, node_id in enumerate(path):
+            if node_id == sequence[seq_idx]:
+                if first_match_idx is None:
+                    first_match_idx = current_idx
+                seq_idx += 1
+                if seq_idx == len(sequence):
+                    return first_match_idx
+        return None
 
     def _resolve_influence(self, influences, node_id, tick) -> Optional[AffectedNode]:
         if not influences: return None

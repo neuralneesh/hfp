@@ -3,11 +3,10 @@
 import React from 'react';
 import { Node as GNode, Perturbation, SimulationOptions } from '@/lib/types';
 import { Play, RotateCcw, Settings, Beaker, MapPin } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
+function cn(...inputs: Array<string | false | null | undefined>) {
+    return twMerge(inputs.filter(Boolean).join(' '));
 }
 
 interface ControlPanelProps {
@@ -21,6 +20,7 @@ interface ControlPanelProps {
     context: Record<string, boolean>;
     setContext: (c: Record<string, boolean>) => void;
     isSimulating: boolean;
+    canSimulate: boolean;
 }
 
 const CONTEXT_OPTIONS = [
@@ -43,6 +43,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     context,
     setContext,
     isSimulating,
+    canSimulate,
 }) => {
     const addPerturbation = (op: "increase" | "decrease" | "block") => {
         if (!selectedNode) return;
@@ -203,10 +204,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="p-4 border-t bg-slate-50">
                 <button
                     onClick={onSimulate}
-                    disabled={isSimulating || perturbations.length === 0}
+                    disabled={isSimulating || !canSimulate}
                     className={cn(
                         "w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95",
-                        perturbations.length > 0
+                        canSimulate
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-slate-200 text-slate-400 cursor-not-allowed"
                     )}
@@ -214,6 +215,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                     <Play className={cn("w-4 h-4 fill-current", isSimulating && "animate-pulse")} />
                     {isSimulating ? "Simulating..." : "Run Simulation"}
                 </button>
+                {!canSimulate && (
+                    <p className="mt-2 text-[10px] text-slate-500">
+                        Add a perturbation or select clinical context to run.
+                    </p>
+                )}
             </div>
         </div>
     );

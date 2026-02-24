@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from '@/components/Sidebar';
-import GraphView, { GraphViewRef } from '@/components/GraphView';
+import GraphView from '@/components/GraphView';
 import ControlPanel from '@/components/ControlPanel';
 import RippleSummary from '@/components/RippleSummary';
 import TraceViewer from '@/components/TraceViewer';
@@ -41,7 +41,7 @@ export default function Home() {
   });
   const [graphSettings, setGraphSettings] = useState<GraphSettings>({
     nodeSize: 10,
-    fontSize: 10,
+    fontSize: 16,
     linkThickness: 1.5,
     nodeRepulsion: 450000,
     idealEdgeLength: 50,
@@ -53,8 +53,12 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const graphRef = React.useRef<GraphViewRef>(null);
+  const hasClinicalContext = useMemo(
+    () => Object.values(context).some(Boolean),
+    [context]
+  );
+  const canSimulate = perturbations.length > 0 || hasClinicalContext;
+  const shouldDimUnaffected = options.dim_unaffected && perturbations.length > 0;
 
   // Fetch initial graph
   const loadGraph = useCallback(async () => {
@@ -78,7 +82,7 @@ export default function Home() {
 
   // Simulation handler
   const runSimulation = async () => {
-    if (perturbations.length === 0) return;
+    if (!canSimulate) return;
     try {
       setIsSimulating(true);
       const res = await simulate({
@@ -162,7 +166,6 @@ export default function Home() {
         domainCounts={domainCounts}
         graphSettings={graphSettings}
         setGraphSettings={setGraphSettings}
-        onAnimate={() => graphRef.current?.runLayout()}
       />
 
       <main className="flex-1 relative flex flex-col overflow-hidden">
@@ -170,13 +173,13 @@ export default function Home() {
 
         <div className="flex-1 relative">
           <GraphView
-            ref={graphRef}
             nodes={nodes}
             edges={edges}
             affectedNodes={affectedNodes}
             perturbations={perturbations}
+            selectedNodeId={selectedNodeId}
             onNodeClick={setSelectedNodeId}
-            dimUnaffected={options.dim_unaffected}
+            dimUnaffected={shouldDimUnaffected}
             settings={graphSettings}
           />
 
@@ -218,6 +221,7 @@ export default function Home() {
         context={context}
         setContext={setContext}
         isSimulating={isSimulating}
+        canSimulate={canSimulate}
       />
     </div>
   );

@@ -37,6 +37,11 @@ class DomainPack(BaseModel):
     edges: List[Edge] = []
     rules: List[Rule] = []
 
+class Syndrome(BaseModel):
+    id: str
+    label: str
+    sequence: List[str]
+
 class Perturbation(BaseModel):
     node_id: str
     op: Literal["increase", "decrease", "block", "set"]
@@ -57,6 +62,7 @@ class TraceStep(BaseModel):
     path: List[str]
     steps: List[str]
     confidence: float
+    summary: Optional[str] = None
 
 class AffectedNode(BaseModel):
     node_id: str

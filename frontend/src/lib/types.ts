@@ -56,6 +56,7 @@ export interface TraceStep {
     path: string[];
     steps: string[];
     confidence: number;
+    summary?: string;
 }
 
 export interface AffectedNode {

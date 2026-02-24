@@ -3,11 +3,10 @@
 import React from 'react';
 import { Domain, Node as GNode } from '@/lib/types';
 import { Search, Pin, Shield, Activity, Droplets, Wind, Zap, Settings2, ChevronDown, ChevronRight, MousePointer2 } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
+function cn(...inputs: Array<string | false | null | undefined>) {
+    return twMerge(inputs.filter(Boolean).join(' '));
 }
 
 interface SidebarProps {
@@ -22,7 +21,6 @@ interface SidebarProps {
     domainCounts: Record<string, number>;
     graphSettings: import('@/lib/types').GraphSettings;
     setGraphSettings: (settings: import('@/lib/types').GraphSettings) => void;
-    onAnimate: () => void;
 }
 
 const DOMAIN_ICONS: Record<string, React.ReactNode> = {
@@ -53,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     domainCounts,
     graphSettings,
     setGraphSettings,
-    onAnimate,
 }) => {
     const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
     const [isForcesOpen, setIsForcesOpen] = React.useState(false);
@@ -234,8 +231,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                             <input
                                 type="range"
-                                min="6"
-                                max="18"
+                                min="16"
+                                max="42"
                                 step="1"
                                 value={graphSettings.fontSize}
                                 onChange={(e) => updateSetting('fontSize', parseInt(e.target.value))}
@@ -305,14 +302,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </div>
                             </div>
                         )}
-
-                        <button
-                            onClick={onAnimate}
-                            className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                        >
-                            <Zap className="w-3.5 h-3.5 fill-current" />
-                            Animate
-                        </button>
                     </div>
                 )}
             </div>

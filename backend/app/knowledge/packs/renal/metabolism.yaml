@@ -59,6 +59,8 @@ edges:
     rel: increases
     weight: 0.9
     delay: hours
+    context:
+      ckd: false
     description: "Increased cAMP (via V2) promotes Aquaporin-2 insertion, increasing water reabsorption and ECF volume."
   - source: renal.volume.ecf_volume
     target: renal.metabolism.anp_bnp

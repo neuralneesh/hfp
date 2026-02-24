@@ -1,0 +1,314 @@
+name: syndrome_taxonomy
+syndromes:
+  - id: alkalemia_induced_vasodilation
+    label: Alkalemia-induced Vasodilation
+    sequence:
+      - acidbase.blood.ph
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.svr
+
+  - id: baroreceptor_reflex
+    label: Baroreceptor Reflex
+    sequence:
+      - cardio.hemodynamics.map
+      - neuro.ans.sympathetic_tone
+
+  - id: hypoxic_pulmonary_vasoconstriction
+    label: Hypoxic Pulmonary Vasoconstriction
+    sequence:
+      - pulm.gasexchange.pao2
+      - pulm.hemo.hpv
+
+  - id: pressure_diuresis
+    label: Pressure Diuresis
+    sequence:
+      - cardio.hemodynamics.map
+      - renal.raas.renin
+      - renal.raas.angiotensin_2
+
+  - id: hypoxemia_sympathetic_activation
+    label: Hypoxemia-driven Sympathetic Activation
+    sequence:
+      - pulm.gasexchange.pao2
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.heart_rate
+
+  - id: sympathetic_camp_tachycardic_response
+    label: Sympathetic cAMP Tachycardic Response
+    sequence:
+      - neuro.ans.sympathetic_tone
+      - cardio.signaling.gs_protein
+      - cardio.signaling.heart_camp
+      - cardio.hemodynamics.heart_rate
+
+  - id: sympathetic_vasoconstrictor_response
+    label: Sympathetic Vasoconstrictor Response
+    sequence:
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.svr
+      - cardio.hemodynamics.map
+      - renal.raas.renin
+
+  - id: vagal_bradycardic_response
+    label: Vagal Bradycardic Response
+    sequence:
+      - neuro.ans.parasympathetic_tone
+      - cardio.hemodynamics.heart_rate
+      - cardio.hemodynamics.cardiac_output
+
+  - id: vagal_av_nodal_slowing
+    label: Vagal AV Nodal Slowing
+    sequence:
+      - neuro.ans.parasympathetic_tone
+      - cardio.electrophysiology.av_conduction
+      - cardio.electrophysiology.pr_interval
+
+  - id: beta_adrenergic_inotropy_cascade
+    label: Beta-adrenergic Inotropy Cascade
+    sequence:
+      - neuro.ans.sympathetic_tone
+      - cardio.signaling.gs_protein
+      - cardio.signaling.heart_camp
+      - cardio.mechanics.inotropy
+      - cardio.hemodynamics.stroke_volume
+
+  - id: beta_adrenergic_dromotropy_cascade
+    label: Beta-adrenergic Dromotropy Cascade
+    sequence:
+      - neuro.ans.sympathetic_tone
+      - cardio.signaling.gs_protein
+      - cardio.signaling.heart_camp
+      - cardio.electrophysiology.av_conduction
+      - cardio.electrophysiology.pr_interval
+
+  - id: cholinergic_gi_camp_suppression
+    label: Cholinergic Gi-cAMP Suppression
+    sequence:
+      - neuro.ans.parasympathetic_tone
+      - cardio.signaling.gi_protein
+      - cardio.signaling.heart_camp
+      - cardio.hemodynamics.heart_rate
+
+  - id: low_map_renin_activation
+    label: Low-MAP Renin Activation
+    sequence:
+      - cardio.hemodynamics.map
+      - renal.raas.renin
+      - renal.raas.angiotensin_2
+      - renal.raas.at1_receptor
+
+  - id: raas_volume_expansion
+    label: RAAS-mediated Volume Expansion
+    sequence:
+      - renal.raas.renin
+      - renal.raas.angiotensin_2
+      - renal.raas.aldosterone
+      - renal.raas.mr_receptor
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - renal.volume.preload
+      - cardio.hemodynamics.stroke_volume
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+
+  - id: aldosterone_hypokalemia_axis
+    label: Aldosterone-Hypokalemia Axis
+    sequence:
+      - renal.raas.aldosterone
+      - renal.raas.mr_receptor
+      - renal.metabolism.potassium
+
+  - id: aldosterone_alkalosis_axis
+    label: Aldosterone-mediated Alkalosis Axis
+    sequence:
+      - renal.raas.aldosterone
+      - renal.raas.mr_receptor
+      - acidbase.blood.h_concentration
+      - acidbase.blood.ph
+
+  - id: aldosterone_volume_heart_rate_coupling
+    label: Aldosterone-Volume Heart Rate Coupling
+    sequence:
+      - renal.raas.aldosterone
+      - renal.raas.mr_receptor
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - cardio.hemodynamics.heart_rate
+
+  - id: aldosterone_to_baroreflex_chain
+    label: Aldosterone-to-Baroreflex Chain
+    sequence:
+      - renal.raas.aldosterone
+      - renal.raas.mr_receptor
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - cardio.hemodynamics.heart_rate
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.heart_rate
+
+  - id: osmotic_adh_axis
+    label: Osmotic ADH Axis
+    sequence:
+      - renal.metabolism.osmolarity
+      - renal.metabolism.adh
+      - renal.metabolism.v2_receptor
+      - renal.signaling.renal_camp
+
+  - id: low_volume_adh_compensation
+    label: Low-volume ADH Compensation
+    sequence:
+      - renal.volume.ecf_volume
+      - renal.metabolism.adh
+      - renal.metabolism.v2_receptor
+      - renal.signaling.renal_camp
+      - renal.volume.ecf_volume
+
+  - id: natriuretic_feedback_on_raas
+    label: Natriuretic Feedback on RAAS
+    sequence:
+      - renal.volume.ecf_volume
+      - renal.metabolism.anp_bnp
+      - renal.raas.renin
+
+  - id: natriuretic_peptide_natriuresis
+    label: Natriuretic Peptide Natriuresis
+    sequence:
+      - renal.metabolism.anp_bnp
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+
+  - id: frank_starling_compensation
+    label: Frank-Starling Compensation
+    sequence:
+      - renal.volume.preload
+      - cardio.hemodynamics.stroke_volume
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+
+  - id: bainbridge_reflex_pattern
+    label: Bainbridge Reflex Pattern
+    sequence:
+      - renal.volume.ecf_volume
+      - cardio.hemodynamics.heart_rate
+      - cardio.hemodynamics.cardiac_output
+
+  - id: diffusion_limit_hypoxemia_pattern
+    label: Diffusion-limited Hypoxemia Pattern
+    sequence:
+      - pulm.gasexchange.diffusion_capacity
+      - pulm.gasexchange.aa_gradient
+      - pulm.gasexchange.pao2
+      - neuro.ans.sympathetic_tone
+
+  - id: vq_mismatch_hypoxemia_pattern
+    label: V/Q Mismatch Hypoxemia Pattern
+    sequence:
+      - pulm.gasexchange.vq_mismatch
+      - pulm.gasexchange.aa_gradient
+      - pulm.gasexchange.pao2
+      - neuro.ans.sympathetic_tone
+
+  - id: surfactant_compliance_oxygenation_axis
+    label: Surfactant-Compliance Oxygenation Axis
+    sequence:
+      - pulm.mechanics.surfactant
+      - pulm.mechanics.compliance
+      - pulm.ventilation.alveolar_ventilation
+      - pulm.gasexchange.pao2
+
+  - id: pleural_failure_ventilatory_collapse
+    label: Pleural Failure Ventilatory Collapse
+    sequence:
+      - pulm.anatomy.pleura
+      - pulm.mechanics.intrapleural_pressure
+      - pulm.ventilation.alveolar_ventilation
+      - pulm.gasexchange.pao2
+
+  - id: resistance_ventilatory_failure_pattern
+    label: Resistance-dominant Ventilatory Failure Pattern
+    sequence:
+      - pulm.mechanics.resistance
+      - pulm.ventilation.alveolar_ventilation
+      - pulm.gasexchange.paco2
+
+  - id: compliance_restriction_pattern
+    label: Compliance-restrictive Ventilation Pattern
+    sequence:
+      - pulm.mechanics.compliance
+      - pulm.ventilation.alveolar_ventilation
+      - pulm.gasexchange.paco2
+
+  - id: obstructive_pft_pattern
+    label: Obstructive PFT Pattern
+    sequence:
+      - pulm.mechanics.resistance
+      - pulm.pft.fev1_fvc
+
+  - id: restrictive_pft_pattern
+    label: Restrictive PFT Pattern
+    sequence:
+      - pulm.mechanics.compliance
+      - pulm.pft.tlc
+
+  - id: pulmonary_vascular_afterload_axis
+    label: Pulmonary Vascular Afterload Axis
+    sequence:
+      - pulm.gasexchange.pao2
+      - pulm.hemo.hpv
+      - pulm.hemo.pvr
+      - cardio.metabolism.myocardial_o2_demand
+      - cardio.metabolism.cardiac_injury
+
+  - id: cardiac_output_recruitment_pattern
+    label: Cardiac Output Recruitment Pattern
+    sequence:
+      - cardio.hemodynamics.cardiac_output
+      - pulm.hemo.recruitment
+      - pulm.hemo.pvr
+
+  - id: co2_chemoreflex_feedback_loop
+    label: CO2 Chemoreflex Feedback Loop
+    sequence:
+      - pulm.gasexchange.paco2
+      - pulm.ventilation.alveolar_ventilation
+      - pulm.gasexchange.paco2
+
+  - id: oxygenation_autonomic_coupling
+    label: Oxygenation-Autonomic Coupling
+    sequence:
+      - pulm.gasexchange.pao2
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.svr
+      - cardio.hemodynamics.map
+
+  - id: map_sympathetic_feedback_loop
+    label: MAP-Sympathetic Feedback Loop
+    sequence:
+      - cardio.hemodynamics.map
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.heart_rate
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+
+  - id: map_raas_feedback_loop
+    label: MAP-RAAS Feedback Loop
+    sequence:
+      - cardio.hemodynamics.map
+      - renal.raas.renin
+      - renal.raas.angiotensin_2
+      - renal.raas.aldosterone
+      - renal.raas.mr_receptor
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - renal.volume.preload
+      - cardio.hemodynamics.stroke_volume
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+
+  - id: myocardial_supply_demand_imbalance
+    label: Myocardial Supply-Demand Imbalance
+    sequence:
+      - cardio.metabolism.myocardial_o2_supply
+      - cardio.metabolism.cardiac_injury

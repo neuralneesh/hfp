@@ -1,0 +1,85 @@
+invariants:
+  - id: map_drop_should_activate_raas_axis
+    label: MAP drop should activate RAAS axis
+    perturbations:
+      - node_id: cardio.hemodynamics.map
+        op: decrease
+    context: {}
+    max_hops: 10
+    must_hold:
+      - target: renal.raas.renin
+        expected: up
+        min_path_len: 2
+      - target: renal.raas.angiotensin_2
+        expected: up
+        min_path_len: 3
+
+  - id: hypercapnia_should_drive_acidemia
+    label: Hypercapnia should increase H and lower pH
+    perturbations:
+      - node_id: pulm.gasexchange.paco2
+        op: increase
+    context: {}
+    max_hops: 8
+    must_hold:
+      - target: acidbase.blood.h_concentration
+        expected: up
+        min_path_len: 2
+      - target: acidbase.blood.ph
+        expected: down
+        min_path_len: 3
+
+  - id: hypoxemia_should_activate_sympathetic
+    label: Hypoxemia should activate sympathetic output
+    perturbations:
+      - node_id: pulm.gasexchange.pao2
+        op: decrease
+    context: {}
+    max_hops: 8
+    must_hold:
+      - target: neuro.ans.sympathetic_tone
+        expected: up
+        min_path_len: 2
+
+  - id: ace_inhibitor_should_reduce_aldosterone
+    label: ACE inhibitor context should reduce aldosterone signal
+    perturbations:
+      - node_id: renal.raas.renin
+        op: increase
+    context:
+      ace_inhibitor: true
+    max_hops: 8
+    must_hold:
+      - target: renal.raas.angiotensin_2
+        expected: up
+        min_path_len: 2
+      - target: renal.raas.aldosterone
+        expected: down
+        min_path_len: 1
+
+  - id: ckd_should_blunt_volume_compensation
+    label: CKD context should blunt ECF compensation
+    perturbations:
+      - node_id: renal.raas.renin
+        op: increase
+    context:
+      ckd: true
+    max_hops: 8
+    must_hold:
+      - target: renal.volume.ecf_volume
+        expected: absent
+      - target: renal.metabolism.potassium
+        expected: up
+        min_path_len: 1
+
+  - id: copd_context_should_generate_macro_trace
+    label: COPD context-only run should produce macro summary
+    perturbations: []
+    context:
+      copd: true
+    max_hops: 10
+    must_hold:
+      - target: neuro.ans.sympathetic_tone
+        expected: up
+        min_path_len: 4
+        require_summary: true

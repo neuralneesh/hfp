@@ -1,7 +1,7 @@
 import os
 import yaml
 from typing import List, Dict, Optional
-from .models import Node, Edge, DomainPack, Rule
+from .models import Node, Edge, DomainPack, Rule, Syndrome
 
 class GraphLoader:
     def __init__(self, packs_dir: str):
@@ -9,6 +9,7 @@ class GraphLoader:
         self.nodes: Dict[str, Node] = {}
         self.edges: List[Edge] = []
         self.rules: List[Rule] = []
+        self.syndromes: List[Syndrome] = []
         self.alias_map: Dict[str, str] = {}
 
     def load_all(self):
@@ -16,6 +17,7 @@ class GraphLoader:
         self.nodes = {}
         self.edges = []
         self.rules = []
+        self.syndromes = []
         self.alias_map = {}
 
         for root, _, files in os.walk(self.packs_dir):
@@ -49,6 +51,11 @@ class GraphLoader:
             for rule_data in data.get('rules', []):
                 rule = Rule(**rule_data)
                 self.rules.append(rule)
+
+            # Load syndromes
+            for syndrome_data in data.get('syndromes', []):
+                syndrome = Syndrome(**syndrome_data)
+                self.syndromes.append(syndrome)
 
     def _validate_graph(self):
         # Ensure all edge sources and targets exist

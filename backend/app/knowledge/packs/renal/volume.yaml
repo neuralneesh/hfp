@@ -16,6 +16,9 @@ edges:
     target: renal.volume.ecf_volume
     rel: increases
     weight: 0.9
+    context:
+      ckd: false
+    description: "CKD impairs nephron ability to translate tubular transport changes into normal volume regulation."
   - source: renal.volume.ecf_volume
     target: renal.volume.preload
     rel: increases

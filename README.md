@@ -61,3 +61,26 @@ The repo includes golden tests for key physiological scenarios:
 - Hypoventilation (Respiratory Acidosis)
 - Hypoxia-induced Sympathetic activation
 - Metabolic Acidosis & Respiratory Compensation
+
+### Pathway Physiology Quality Check
+Run multi-hop physiology assertions (including context-aware and context-only checks):
+```bash
+cd backend
+./venv/bin/python scripts/pathway_quality_check.py
+```
+Loop until a failure is found:
+```bash
+cd backend
+./venv/bin/python scripts/pathway_quality_check.py --loop-until-failure
+```
+Optional bounded loop:
+```bash
+cd backend
+./venv/bin/python scripts/pathway_quality_check.py --loop-until-failure --max-iterations 100
+```
+Spec file:
+- `backend/app/knowledge/quality/pathway_expectations.yaml`
+Hard invariant file:
+- `backend/app/knowledge/quality/hard_invariants.yaml`
+
+The script exits non-zero if any expected physiologic pathway check fails.
