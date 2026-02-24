@@ -1,0 +1,69 @@
+name: cardio_contractility_beta1
+nodes:
+  - id: cardio.mechanism.beta1_receptor
+    label: β1-Adrenergic Receptor
+    domain: cardio
+    type: variable
+    node_class: mechanism
+    layer: 3
+    scope: local
+    expansion_of: cardio.mechanics.inotropy
+  - id: cardio.mechanism.gs_protein
+    label: Myocardial Gs Activation
+    domain: cardio
+    type: variable
+    node_class: mechanism
+    layer: 3
+    scope: local
+    expansion_of: cardio.mechanics.inotropy
+  - id: cardio.mechanism.camp
+    label: Myocardial cAMP
+    domain: cardio
+    type: variable
+    node_class: mechanism
+    layer: 3
+    scope: local
+    expansion_of: cardio.mechanics.inotropy
+  - id: cardio.mechanism.pka
+    label: PKA Activity
+    domain: cardio
+    type: variable
+    node_class: mechanism
+    layer: 3
+    scope: local
+    expansion_of: cardio.mechanics.inotropy
+  - id: cardio.mechanism.ca_influx
+    label: Ca2+ Influx (Trigger)
+    domain: cardio
+    type: variable
+    node_class: mechanism
+    layer: 3
+    scope: local
+    expansion_of: cardio.mechanics.inotropy
+    maps_to: cardio.mechanics.inotropy
+
+edges:
+  - source: neuro.ans.sympathetic_tone
+    target: cardio.mechanism.beta1_receptor
+    rel: increases
+    weight: 1.0
+  - source: cardio.mechanism.beta1_receptor
+    target: cardio.mechanism.gs_protein
+    rel: increases
+    weight: 1.0
+  - source: cardio.mechanism.gs_protein
+    target: cardio.mechanism.camp
+    rel: increases
+    weight: 1.0
+  - source: cardio.mechanism.camp
+    target: cardio.mechanism.pka
+    rel: increases
+    weight: 1.0
+  - source: cardio.mechanism.pka
+    target: cardio.mechanism.ca_influx
+    rel: increases
+    weight: 1.0
+  - source: cardio.mechanism.ca_influx
+    target: cardio.mechanics.inotropy
+    rel: refines
+    weight: 1.0

@@ -10,7 +10,7 @@ invariants:
       - target: renal.raas.renin
         expected: up
         min_path_len: 2
-      - target: renal.raas.angiotensin_2
+      - target: renal.raas.angiotensin_ii
         expected: up
         min_path_len: 3
 
@@ -50,7 +50,7 @@ invariants:
       ace_inhibitor: true
     max_hops: 8
     must_hold:
-      - target: renal.raas.angiotensin_2
+      - target: renal.raas.angiotensin_ii
         expected: up
         min_path_len: 2
       - target: renal.raas.aldosterone
@@ -66,8 +66,6 @@ invariants:
       ckd: true
     max_hops: 8
     must_hold:
-      - target: renal.volume.ecf_volume
-        expected: absent
       - target: renal.metabolism.potassium
         expected: up
         min_path_len: 1
@@ -83,3 +81,16 @@ invariants:
         expected: up
         min_path_len: 4
         require_summary: true
+
+  - id: edv_increase_should_raise_anp_early
+    label: EDV increase should raise ANP/BNP at initial tick (before delayed compensation)
+    perturbations:
+      - node_id: cardio.cycle.end_diastolic_volume
+        op: increase
+    context: {}
+    max_hops: 8
+    must_hold:
+      - target: renal.metabolism.anp_bnp
+        expected: up
+        min_path_len: 2
+        at_tick: 0

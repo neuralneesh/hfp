@@ -11,6 +11,10 @@ nodes:
     domain: pulm
     type: process
     state_type: qualitative
+    time_constant: acute
+    baseline_level: 0.0
+    min_level: 0.0
+    max_level: 1.0
     description: "Reflexive vasoconstriction of pulmonary vessels in response to alveolar hypoxia (High V/Q matching)."
   - id: pulm.hemo.lung_zones
     label: West Lung Zones (1, 2, 3)
@@ -30,6 +34,8 @@ edges:
     target: pulm.hemo.hpv
     rel: decreases
     weight: 1.0
+    activation_direction: down
+    activation_threshold: 0.55
     description: "Alveolar hypoxia triggers HPV to shunt blood away from poorly ventilated areas."
   - source: pulm.hemo.hpv
     target: pulm.hemo.pvr

@@ -24,7 +24,7 @@ syndromes:
     sequence:
       - cardio.hemodynamics.map
       - renal.raas.renin
-      - renal.raas.angiotensin_2
+      - renal.raas.angiotensin_ii
 
   - id: hypoxemia_sympathetic_activation
     label: Hypoxemia-driven Sympathetic Activation
@@ -61,7 +61,6 @@ syndromes:
     sequence:
       - neuro.ans.parasympathetic_tone
       - cardio.electrophysiology.av_conduction
-      - cardio.electrophysiology.pr_interval
 
   - id: beta_adrenergic_inotropy_cascade
     label: Beta-adrenergic Inotropy Cascade
@@ -79,7 +78,6 @@ syndromes:
       - cardio.signaling.gs_protein
       - cardio.signaling.heart_camp
       - cardio.electrophysiology.av_conduction
-      - cardio.electrophysiology.pr_interval
 
   - id: cholinergic_gi_camp_suppression
     label: Cholinergic Gi-cAMP Suppression
@@ -94,14 +92,14 @@ syndromes:
     sequence:
       - cardio.hemodynamics.map
       - renal.raas.renin
-      - renal.raas.angiotensin_2
+      - renal.raas.angiotensin_ii
       - renal.raas.at1_receptor
 
   - id: raas_volume_expansion
     label: RAAS-mediated Volume Expansion
     sequence:
       - renal.raas.renin
-      - renal.raas.angiotensin_2
+      - renal.raas.angiotensin_ii
       - renal.raas.aldosterone
       - renal.raas.mr_receptor
       - renal.tubule.na_reabsorption
@@ -297,7 +295,7 @@ syndromes:
     sequence:
       - cardio.hemodynamics.map
       - renal.raas.renin
-      - renal.raas.angiotensin_2
+      - renal.raas.angiotensin_ii
       - renal.raas.aldosterone
       - renal.raas.mr_receptor
       - renal.tubule.na_reabsorption

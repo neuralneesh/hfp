@@ -35,6 +35,8 @@ class GraphLoader:
 
             # Load nodes
             for node_data in data.get('nodes', []):
+                if 'time_constant' not in node_data:
+                    node_data['time_constant'] = self._infer_time_constant(node_data)
                 node = Node(**node_data)
                 if node.id in self.nodes:
                     raise ValueError(f"Duplicate node ID: {node.id}")
@@ -72,3 +74,16 @@ class GraphLoader:
         if canonical_id:
             return self.nodes[canonical_id]
         return None
+
+    def _infer_time_constant(self, node_data: Dict) -> str:
+        node_type = str(node_data.get("type", "")).lower()
+        node_id = str(node_data.get("id", "")).lower()
+
+        if "injury" in node_id or "marker" in node_id:
+            return "chronic"
+        if node_type in {"event", "process", "organ"}:
+            return "acute"
+        if node_type in {"hormone", "vessel"}:
+            return "subacute"
+        # Default qualitative physiologic variables to subacute.
+        return "subacute"

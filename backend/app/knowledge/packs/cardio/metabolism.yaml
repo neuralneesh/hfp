@@ -19,6 +19,26 @@ nodes:
     aliases: ["Troponin", "CK-MB"]
 
 edges:
+  - source: cardio.hemodynamics.heart_rate
+    target: cardio.metabolism.myocardial_o2_demand
+    rel: increases
+    weight: 0.8
+    description: "Higher heart rate increases myocardial oxygen demand."
+  - source: cardio.mechanics.inotropy
+    target: cardio.metabolism.myocardial_o2_demand
+    rel: increases
+    weight: 0.8
+    description: "Increased contractility raises ATP and oxygen demand."
+  - source: cardio.hemodynamics.map
+    target: cardio.metabolism.myocardial_o2_supply
+    rel: increases
+    weight: 0.5
+    description: "Adequate perfusion pressure supports coronary oxygen supply."
+  - source: pulm.gasexchange.pao2
+    target: cardio.metabolism.myocardial_o2_supply
+    rel: increases
+    weight: 0.7
+    description: "Higher arterial oxygen tension supports myocardial oxygen delivery."
   - source: cardio.metabolism.myocardial_o2_demand
     target: cardio.metabolism.cardiac_injury
     rel: increases

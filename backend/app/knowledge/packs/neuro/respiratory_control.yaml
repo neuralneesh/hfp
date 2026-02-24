@@ -1,0 +1,104 @@
+name: neuro_respiratory_control
+nodes:
+  - id: neuro.resp.central_chemoreceptors
+    label: Central Chemoreceptors
+    domain: neuro
+    type: hormone
+    state_type: qualitative
+    node_class: mechanism
+    scope: local
+    expansion_of: pulm.ventilation.inspiratory_drive
+    description: "Medullary chemoreceptors sensitive to hydrogen ion concentration in the CSF, reflecting arterial PaCO2."
+
+  - id: neuro.resp.peripheral_chemoreceptors
+    label: Peripheral Chemoreceptors
+    domain: neuro
+    type: organ
+    state_type: qualitative
+    node_class: mechanism
+    scope: local
+    expansion_of: pulm.ventilation.inspiratory_drive
+    description: "Carotid and aortic bodies sensitive primarily to PaO2, and to a lesser extent PaCO2 and pH."
+
+  - id: neuro.resp.medullary_center
+    label: Medullary Respiratory Center
+    domain: neuro
+    type: organ
+    state_type: qualitative
+    node_class: control
+    scope: local
+    expansion_of: pulm.ventilation.inspiratory_drive
+    maps_to: pulm.ventilation.inspiratory_drive
+    description: "Network of neurons (DRG and VRG) in the medulla that generates the respiratory rhythm."
+
+  - id: neuro.resp.phrenic_nerve
+    label: Phrenic Nerve Output
+    domain: neuro
+    type: process
+    state_type: qualitative
+    node_class: control
+    scope: local
+    expansion_of: pulm.ventilation.inspiratory_drive
+    maps_to: pulm.mechanics.intrapleural_pressure
+    description: "Neural output from C3-C5 that stimulates the diaphragm."
+
+edges:
+  - source: pulm.gasexchange.paco2
+    target: neuro.resp.central_chemoreceptors
+    rel: increases
+    weight: 1.0
+    priority: high
+    description: "PaCO2 diffuses across BBB, lowers CSF pH, stimulating central chemoreceptors."
+
+  - source: pulm.gasexchange.paco2
+    target: neuro.resp.peripheral_chemoreceptors
+    rel: increases
+    weight: 0.4
+    priority: medium
+    description: "Peripheral chemoreceptors have a minor response to CO2/pH."
+
+  - source: pulm.gasexchange.pao2
+    target: neuro.resp.peripheral_chemoreceptors
+    rel: decreases
+    weight: 0.8
+    priority: low
+    description: "Low PaO2 stimulates peripheral chemoreceptor firing."
+
+  - source: acidbase.blood.ph
+    target: neuro.resp.peripheral_chemoreceptors
+    rel: decreases
+    weight: 0.7
+    priority: high
+    description: "Acidemia (low pH) stimulates peripheral chemoreceptors, driving the compensatory respiratory response."
+
+  - source: neuro.resp.central_chemoreceptors
+    target: neuro.resp.medullary_center
+    rel: increases
+    weight: 1.0
+    priority: high
+    description: "Primary drive for ventilation in normal states."
+
+  - source: neuro.resp.peripheral_chemoreceptors
+    target: neuro.resp.medullary_center
+    rel: increases
+    weight: 1.0
+    priority: high
+    description: "Hypoxic drive stimulation of the medullary center."
+
+  - source: neuro.resp.medullary_center
+    target: neuro.resp.phrenic_nerve
+    rel: increases
+    weight: 1.0
+    priority: medium
+
+  - source: neuro.resp.phrenic_nerve
+    target: pulm.mechanics.intrapleural_pressure
+    rel: refines
+    weight: 1.0
+    description: "Phrenic nerve stimulation causes diaphragm contraction, lowering intrapleural pressure (refined mechanics)."
+
+  # Refinement links to bridge the macro node
+  - source: neuro.resp.medullary_center
+    target: pulm.ventilation.inspiratory_drive
+    rel: refines
+    weight: 1.0

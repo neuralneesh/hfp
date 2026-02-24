@@ -16,13 +16,15 @@ edges:
     target: renal.volume.ecf_volume
     rel: increases
     weight: 0.9
+    delay: hours
     context:
       ckd: false
-    description: "CKD impairs nephron ability to translate tubular transport changes into normal volume regulation."
+    description: "Tubular sodium handling changes ECF volume over hours; CKD impairs this translation."
   - source: renal.volume.ecf_volume
     target: renal.volume.preload
     rel: increases
     weight: 1.0
+    delay: hours
   - source: renal.volume.preload
     target: cardio.hemodynamics.stroke_volume
     rel: increases

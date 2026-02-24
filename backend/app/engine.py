@@ -10,6 +10,8 @@ class ReasoningEngine:
         self.nodes = nodes
         self.edges = edges
         self.syndromes = syndromes or []
+        # Backward-compatible snapshot of per-tick resolved states from the latest simulation.
+        self.latest_node_states: Dict[str, Dict[int, AffectedNode]] = {}
         self.adj: Dict[str, List[Edge]] = collections.defaultdict(list)
         for edge in self.edges:
             self.adj[edge.source].append(edge)
@@ -17,6 +19,7 @@ class ReasoningEngine:
     def simulate(self, request: SimulationRequest) -> SimulationResponse:
         # node_states: node_id -> tick -> AffectedNode
         node_states: Dict[str, Dict[int, AffectedNode]] = collections.defaultdict(dict)
+        node_activity: Dict[str, Dict[int, float]] = collections.defaultdict(dict)
         traces: Dict[str, List[TraceStep]] = collections.defaultdict(list)
         
         time_map = {"immediate": 0, "minutes": 1, "hours": 2, "days": 3}
@@ -59,6 +62,7 @@ class ReasoningEngine:
                     continue
                 
                 node_states[curr_node_id][tick] = resolved
+                node_activity[curr_node_id][tick] = resolved.confidence if resolved.direction == "up" else -resolved.confidence
                 resolved_in_this_tick.add(curr_node_id)
 
                 # Propagate from this node
@@ -80,7 +84,15 @@ class ReasoningEngine:
 
                     target_id = edge.target
                     target_dir = self._propagate_direction(source_dir_for_path, edge.rel)
-                    target_conf = resolved.confidence * edge.weight
+                    source_level = self._source_level(curr_node_id, tick, node_activity)
+                    source_strength = abs(source_level)
+
+                    threshold_gain = self._activation_threshold_gain(edge, source_dir_for_path, source_strength)
+                    saturation_gain = self._saturation_gain(curr_node_id, source_dir_for_path, source_level)
+                    time_gain = self._time_constant_gain(curr_node_id)
+                    target_conf = resolved.confidence * edge.weight * threshold_gain * saturation_gain * time_gain
+                    if target_conf < request.options.min_confidence:
+                        continue
                     
                     delay_val = time_map.get(edge.delay, 0)
                     next_tick = tick + delay_val
@@ -106,11 +118,17 @@ class ReasoningEngine:
         # Build response
         all_affected = []
         for node_id, tick_states in node_states.items():
-            # Latest state for the UI indicator
-            sorted_ticks = sorted(tick_states.keys())
-            if sorted_ticks:
-                latest_tick = sorted_ticks[-1]
-                all_affected.append(tick_states[latest_tick])
+            # Surface the dominant resolved effect, not merely the latest tick.
+            # This avoids delayed feedback loops masking the primary direction.
+            if tick_states:
+                best_tick = max(
+                    tick_states.keys(),
+                    key=lambda t: (tick_states[t].confidence, -t),
+                )
+                all_affected.append(tick_states[best_tick])
+
+        # Preserve full timeline for debugging scripts/tests that inspect tick-level states.
+        self.latest_node_states = dict(node_states)
 
         return SimulationResponse(
             affected_nodes=all_affected,
@@ -229,12 +247,12 @@ class ReasoningEngine:
         target_state = "Increased" if target_dir == "up" else "Decreased" if target_dir == "down" else target_dir
 
         if source_dir == "up":
-            if rel == "increases":
+            if rel == "increases" or rel == "enables" or rel == "causes" or rel == "precedes" or rel == "part_of" or rel == "refines" or rel == "derives":
                 return f"Increased {source_label} promotes {target_label} → {target_state} {target_label}"
             if rel == "decreases":
                 return f"Increased {source_label} inhibits {target_label} → {target_state} {target_label}"
         elif source_dir == "down":
-            if rel == "increases":
+            if rel == "increases" or rel == "enables" or rel == "causes" or rel == "precedes" or rel == "part_of" or rel == "refines" or rel == "derives":
                 return f"Reduced {source_label} fails to promote {target_label} → {target_state} {target_label}"
             if rel == "decreases":
                 return f"Reduced {source_label} disinhibits {target_label} → {target_state} {target_label}"
@@ -248,9 +266,47 @@ class ReasoningEngine:
                 return False
         return True
 
+    def _activation_threshold_gain(self, edge: Edge, source_dir: str, source_strength: float) -> float:
+        if edge.activation_threshold is None:
+            return 1.0
+        if edge.activation_direction != "any" and source_dir != edge.activation_direction:
+            return 0.05
+        return 1.0 if source_strength >= edge.activation_threshold else 0.05
+
+    def _source_level(self, node_id: str, tick: int, node_activity: Dict[str, Dict[int, float]]) -> float:
+        node = self.nodes[node_id]
+        activity = node_activity.get(node_id, {}).get(tick, 0.0)
+        level = node.baseline_level + activity
+        return max(node.min_level, min(node.max_level, level))
+
+    def _saturation_gain(self, node_id: str, source_dir: str, source_level: float) -> float:
+        node = self.nodes[node_id]
+        # Only apply saturation where the node explicitly constrains its dynamic range.
+        if node.min_level <= -1.0 and node.max_level >= 1.0:
+            return 1.0
+        if source_dir == "down":
+            # Only damp when already close to the lower floor.
+            if source_level <= node.min_level + 0.05:
+                return 0.05
+            return 1.0
+        if source_dir == "up":
+            # Only damp when already close to the upper ceiling.
+            if source_level >= node.max_level - 0.05:
+                return 0.05
+            return 1.0
+        return 1.0
+
+    def _time_constant_gain(self, node_id: str) -> float:
+        tc = self.nodes[node_id].time_constant
+        if tc == "acute":
+            return 1.0
+        if tc == "subacute":
+            return 0.75
+        return 0.5
+
     def _propagate_direction(self, direction: str, rel: str) -> str:
         if direction == "unknown" or direction == "unchanged": return direction
-        if rel == "increases" or rel == "converts_to" or rel == "requires":
+        if rel in {"increases", "converts_to", "requires", "enables", "precedes", "part_of", "causes", "refines", "derives"}:
             return direction
         elif rel == "decreases":
             return "down" if direction == "up" else "up"

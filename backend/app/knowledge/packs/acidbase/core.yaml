@@ -16,6 +16,16 @@ edges:
     target: acidbase.blood.ph
     rel: decreases
     weight: 1.0
+  - source: acidbase.blood.hco3
+    target: acidbase.blood.h_concentration
+    rel: decreases
+    weight: 0.9
+    description: "Higher bicarbonate buffers free H+, lowering hydrogen ion concentration."
+  - source: acidbase.blood.hco3
+    target: acidbase.blood.ph
+    rel: increases
+    weight: 0.8
+    description: "Higher bicarbonate shifts arterial pH upward."
   - source: acidbase.blood.ph
     target: neuro.ans.sympathetic_tone
     rel: decreases

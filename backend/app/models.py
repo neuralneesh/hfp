@@ -10,6 +10,10 @@ class Node(BaseModel):
     unit: Optional[str] = None
     normal_range: Optional[Dict[str, float]] = None
     aliases: List[str] = []
+    time_constant: Literal["acute", "subacute", "chronic"] = "acute"
+    baseline_level: float = 0.0
+    min_level: float = -1.0
+    max_level: float = 1.0
     
     # Current state for simulation
     direction: Literal["up", "down", "unknown", "unchanged"] = "unchanged"
@@ -18,10 +22,12 @@ class Node(BaseModel):
 class Edge(BaseModel):
     source: str
     target: str
-    rel: Literal["increases", "decreases", "converts_to", "requires"]
+    rel: Literal["increases", "decreases", "converts_to", "requires", "enables", "precedes", "part_of", "causes", "refines", "derives"]
     weight: float = Field(default=1.0, ge=0.0, le=1.0)
     delay: Literal["immediate", "minutes", "hours", "days"] = "immediate"
     priority: Literal["low", "medium", "high"] = "medium"
+    activation_direction: Literal["up", "down", "any"] = "any"
+    activation_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
     context: Dict[str, bool] = {}
     description: Optional[str] = None
 

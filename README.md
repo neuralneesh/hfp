@@ -63,7 +63,7 @@ The repo includes golden tests for key physiological scenarios:
 - Metabolic Acidosis & Respiratory Compensation
 
 ### Pathway Physiology Quality Check
-Run multi-hop physiology assertions (including context-aware and context-only checks):
+Run multi-hop physiology assertions plus static graph linting (relations, cross-pack references, delay plausibility, and immediate opposing feedback loops):
 ```bash
 cd backend
 ./venv/bin/python scripts/pathway_quality_check.py
@@ -84,3 +84,4 @@ Hard invariant file:
 - `backend/app/knowledge/quality/hard_invariants.yaml`
 
 The script exits non-zero if any expected physiologic pathway check fails.
+Assertions also support an optional `at_tick` field to pin early-vs-late effects in compensatory loops.

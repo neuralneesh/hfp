@@ -6,7 +6,7 @@
 | acidbase.blood.hco3 | decreases | acidbase.blood.h_concentration | 1.0 | medium | {} |  |
 | acidbase.blood.ph | decreases | pulm.ventilation.alveolar_ventilation | 0.9 | medium | {} | Acidemia (low pH) increases ventilation (respiratory compensation) |
 | acidbase.blood.ph | decreases | renal.raas.renin | 0.95 | high | {} |  |
-| cardio.electrophysiology.conduction_delay | increases | cardio.electrophysiology.pr_interval | 1.0 | medium | {} | Increased AV delay prolongs the PR interval. |
+| cardio.electrophysiology.conduction_delay | decreases | cardio.electrophysiology.av_conduction | 1.0 | medium | {} | Increased AV delay lowers AV conduction speed. |
 | cardio.hemodynamics.adrenoceptor_alpha1 | increases | cardio.signaling.ip3_dag | 1.0 | medium | {} | Alpha-1 receptors are Gq-coupled, activating PLC and increasing IP3/DAG. |
 | cardio.hemodynamics.adrenoceptor_beta1 | increases | cardio.signaling.camp | 1.0 | medium | {} | Beta-1 receptors are Gs-coupled, increasing adenylyl cyclase activity and cAMP. |
 | cardio.hemodynamics.cardiac_output | increases | cardio.hemodynamics.map | 1.0 | medium | {} |  |

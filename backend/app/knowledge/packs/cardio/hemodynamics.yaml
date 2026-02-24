@@ -38,11 +38,6 @@ nodes:
     type: process
     state_type: qualitative
     description: "Speed of electrical signal propagation through the AV node."
-  - id: cardio.electrophysiology.pr_interval
-    label: EKG PR-Interval
-    domain: cardio
-    type: variable
-    state_type: qualitative
   - id: acidbase.blood.h_concentration
     label: "[H+] Concentration"
     domain: acidbase
@@ -66,11 +61,6 @@ edges:
     target: cardio.hemodynamics.cardiac_output
     rel: increases
     weight: 0.8
-  - source: cardio.electrophysiology.av_conduction
-    target: cardio.electrophysiology.pr_interval
-    rel: decreases
-    weight: 1.0
-    description: "Faster AV conduction shortens the PR interval."
   - source: neuro.ans.parasympathetic_tone
     target: cardio.electrophysiology.av_conduction
     rel: decreases

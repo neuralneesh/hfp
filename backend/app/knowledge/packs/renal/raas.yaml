@@ -5,7 +5,7 @@ nodes:
     domain: renal
     type: hormone
     state_type: qualitative
-  - id: renal.raas.angiotensin_2
+  - id: renal.raas.angiotensin_ii
     label: Angiotensin II
     domain: renal
     type: hormone
@@ -33,19 +33,31 @@ nodes:
 
 edges:
   - source: renal.raas.renin
-    target: renal.raas.angiotensin_2
+    target: renal.raas.angiotensin_ii
     rel: increases
     weight: 1.0
-  - source: renal.raas.angiotensin_2
+  - source: renal.raas.angiotensin_ii
     target: renal.raas.at1_receptor
     rel: increases
     weight: 1.0
-  - source: renal.raas.angiotensin_2
+  - source: renal.raas.angiotensin_ii
     target: renal.raas.aldosterone
     rel: increases
     weight: 0.8
     context:
       ace_inhibitor: false
+  - source: renal.raas.at1_receptor
+    target: cardio.hemodynamics.svr
+    rel: increases
+    weight: 0.9
+    description: "AT1 activation causes systemic arteriolar vasoconstriction, raising SVR."
+  - source: renal.raas.at1_receptor
+    target: renal.tubule.na_reabsorption
+    rel: increases
+    weight: 0.6
+    context:
+      ckd: false
+    description: "AT1 signaling increases proximal sodium reabsorption."
   - source: renal.raas.aldosterone
     target: renal.raas.mr_receptor
     rel: increases
@@ -67,10 +79,10 @@ edges:
   - source: renal.raas.mr_receptor
     target: acidbase.blood.h_concentration
     rel: decreases
-    weight: 0.7
+    weight: 0.25
     context:
       ckd: false
-    description: "MR activation in alpha-intercalated cells promotes H+ secretion (Acid loss)"
+    description: "MR activation in alpha-intercalated cells promotes H+ secretion, but net pH effect is low gain in normal states."
   - source: cardio.hemodynamics.map
     target: renal.raas.renin
     rel: decreases

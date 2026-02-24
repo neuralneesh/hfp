@@ -18,6 +18,12 @@ nodes:
     type: process
     state_type: qualitative
     aliases: ["VA"]
+  - id: pulm.ventilation.inspiratory_drive
+    label: Inspiratory Drive
+    domain: pulm
+    type: process
+    state_type: qualitative
+    description: "Net neural respiratory drive that governs effective inspiration."
   - id: pulm.ventilation.vagal_tone
     label: Vagal Tone
     domain: pulm
@@ -43,6 +49,11 @@ nodes:
     description: "Ability of gas to transfer from alveoli to pulmonary capillary blood."
 
 edges:
+  - source: pulm.ventilation.inspiratory_drive
+    target: pulm.ventilation.alveolar_ventilation
+    rel: increases
+    weight: 1.0
+    description: "Higher inspiratory drive increases effective alveolar ventilation."
   - source: pulm.ventilation.alveolar_ventilation
     target: pulm.gasexchange.pao2
     rel: increases
@@ -63,12 +74,18 @@ edges:
     target: pulm.ventilation.alveolar_ventilation
     rel: increases
     weight: 1.0
+    delay: minutes
     priority: high
     description: "Central chemoreceptors detect increased PaCO2/low pH in CSF and stimulate ventilation"
   - source: neuro.ans.parasympathetic_tone
     target: pulm.ventilation.vagal_tone
     rel: increases
     weight: 1.0
+  - source: pulm.ventilation.vagal_tone
+    target: pulm.mechanics.resistance
+    rel: increases
+    weight: 0.7
+    description: "Increased vagal tone promotes bronchoconstriction, increasing airway resistance."
   - source: pulm.gasexchange.vq_mismatch
     target: pulm.gasexchange.aa_gradient
     rel: increases

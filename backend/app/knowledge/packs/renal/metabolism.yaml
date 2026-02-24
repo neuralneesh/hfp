@@ -66,14 +66,36 @@ edges:
     target: renal.metabolism.anp_bnp
     rel: increases
     weight: 0.9
-    description: "Increased ECF volume (atrial stretch) stimulates ANP/BNP release"
+    delay: hours
+    description: "Increased effective circulating volume raises cardiac wall stretch and stimulates ANP/BNP release."
+  - source: renal.volume.preload
+    target: renal.metabolism.anp_bnp
+    rel: increases
+    weight: 0.9
+    description: "Higher preload increases atrial/ventricular stretch, directly triggering ANP/BNP secretion."
+  - source: cardio.cycle.end_diastolic_volume
+    target: renal.metabolism.anp_bnp
+    rel: increases
+    weight: 0.9
+    description: "Higher EDV increases ventricular stretch and directly stimulates ANP/BNP release."
   - source: renal.metabolism.anp_bnp
     target: renal.raas.renin
     rel: decreases
+    weight: 0.8
+    description: "ANP/BNP suppresses renin release (counter-regulatory to RAAS)."
+  - source: renal.metabolism.anp_bnp
+    target: renal.raas.aldosterone
+    rel: decreases
     weight: 0.7
-    description: "ANP/BNP inhibits renin release"
+    description: "ANP/BNP suppresses aldosterone signaling, opposing RAAS-mediated sodium retention."
   - source: renal.metabolism.anp_bnp
     target: renal.tubule.na_reabsorption
     rel: decreases
+    weight: 0.7
+    description: "ANP/BNP promotes natriuresis by reducing tubular sodium reabsorption."
+  - source: renal.metabolism.anp_bnp
+    target: renal.volume.ecf_volume
+    rel: decreases
     weight: 0.6
-    description: "ANP promotes natriuresis (inhibits Na+ reabsorption)"
+    delay: hours
+    description: "Net ANP/BNP effect is reduced ECF volume via natriuresis/diuresis and RAAS suppression."
