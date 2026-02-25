@@ -8,11 +8,13 @@ interface TraceViewerProps {
     nodeId: string;
     nodeLabel: string;
     traces: TraceStep[];
+    activePathIndex?: number | null;
+    onPathSelect?: (index: number) => void;
 }
 
 import { motion, useDragControls } from 'framer-motion';
 
-const TraceViewer: React.FC<TraceViewerProps> = ({ nodeId, nodeLabel, traces }) => {
+const TraceViewer: React.FC<TraceViewerProps> = ({ nodeId, nodeLabel, traces, activePathIndex, onPathSelect }) => {
     const [isMinimized, setIsMinimized] = useState(false);
     const dragControls = useDragControls();
 
@@ -58,12 +60,26 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ nodeId, nodeLabel, traces }) 
                 <div className="p-4 overflow-y-auto select-text">
                     <div className="space-y-6">
                         {traces.map((trace, i) => (
-                            <div key={`${nodeId}-${i}`} className="space-y-3">
-                                <div className="flex items-center justify-between">
+                            <div
+                                key={`${nodeId}-${i}`}
+                                className={`space-y-3 rounded-lg border p-3 ${activePathIndex === i ? 'border-amber-300 bg-amber-50/60' : 'border-slate-100 bg-white'}`}
+                            >
+                                <div className="flex items-center justify-between gap-3">
                                     <span className="text-[10px] uppercase font-bold text-slate-400">Path {i + 1}</span>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-mono">
-                                        conf: {Math.round(trace.confidence * 100)}%
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-mono">
+                                            conf: {Math.round(trace.confidence * 100)}%
+                                        </span>
+                                        {onPathSelect && (
+                                            <button
+                                                type="button"
+                                                onClick={() => onPathSelect(i)}
+                                                className={`text-[10px] px-2 py-0.5 rounded border ${activePathIndex === i ? 'border-amber-500 bg-amber-100 text-amber-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                            >
+                                                {activePathIndex === i ? 'Highlighted' : 'Highlight'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {trace.summary && (

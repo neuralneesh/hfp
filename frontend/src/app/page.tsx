@@ -32,6 +32,8 @@ export default function Home() {
   const [pinnedNodes, setPinnedNodes] = useState<string[]>([]);
 
   const [perturbations, setPerturbations] = useState<Perturbation[]>([]);
+  const [activeTraceIndex, setActiveTraceIndex] = useState<number | null>(null);
+  const [activeTraceNodeId, setActiveTraceNodeId] = useState<string | null>(null);
   const [context, setContext] = useState<Record<string, boolean>>({});
   const [options, setOptions] = useState<SimulationOptions>({
     max_hops: 8,
@@ -111,6 +113,48 @@ export default function Home() {
     nodes.find(n => n.id === selectedNodeId) || null
     , [nodes, selectedNodeId]);
 
+  useEffect(() => {
+    if (!selectedNodeId) {
+      if (activeTraceIndex !== null) setActiveTraceIndex(null);
+      if (activeTraceNodeId !== null) setActiveTraceNodeId(null);
+      return;
+    }
+
+    const nodeTraces = traces[selectedNodeId] || [];
+    if (nodeTraces.length === 0) {
+      if (activeTraceIndex !== null) setActiveTraceIndex(null);
+      if (activeTraceNodeId !== null) setActiveTraceNodeId(null);
+      return;
+    }
+
+    const isSameNode = activeTraceNodeId === selectedNodeId;
+    const hasValidSelection = isSameNode && activeTraceIndex !== null && activeTraceIndex < nodeTraces.length;
+    if (hasValidSelection) return;
+
+    const perturbationNodeIds = new Set(perturbations.map((p) => p.node_id));
+    let preferredIndex = -1;
+    let preferredConfidence = -1;
+    nodeTraces.forEach((trace, index) => {
+      const startsFromPerturbation = trace.path.length > 0 && perturbationNodeIds.has(trace.path[0]);
+      if (!startsFromPerturbation) return;
+      if (trace.confidence > preferredConfidence) {
+        preferredConfidence = trace.confidence;
+        preferredIndex = index;
+      }
+    });
+
+    setActiveTraceNodeId(selectedNodeId);
+    setActiveTraceIndex(preferredIndex >= 0 ? preferredIndex : 0);
+  }, [selectedNodeId, traces, perturbations, activeTraceIndex, activeTraceNodeId]);
+
+  const highlightedPath = useMemo(() => {
+    if (!selectedNodeId || activeTraceNodeId !== selectedNodeId || activeTraceIndex === null) {
+      return [];
+    }
+    const nodeTraces = traces[selectedNodeId] || [];
+    return nodeTraces[activeTraceIndex]?.path || [];
+  }, [selectedNodeId, activeTraceNodeId, activeTraceIndex, traces]);
+
   const filteredNodes = useMemo(() => {
     let result = nodes;
     if (selectedDomain !== 'all') {
@@ -178,6 +222,7 @@ export default function Home() {
             affectedNodes={affectedNodes}
             perturbations={perturbations}
             selectedNodeId={selectedNodeId}
+            highlightedPath={highlightedPath}
             onNodeClick={setSelectedNodeId}
             dimUnaffected={shouldDimUnaffected}
             settings={graphSettings}
@@ -188,6 +233,11 @@ export default function Home() {
               nodeId={selectedNodeId}
               nodeLabel={selectedNode?.label || ''}
               traces={traces[selectedNodeId]}
+              activePathIndex={activeTraceNodeId === selectedNodeId ? activeTraceIndex : null}
+              onPathSelect={(index) => {
+                setActiveTraceNodeId(selectedNodeId);
+                setActiveTraceIndex(index);
+              }}
             />
           )}
 

@@ -20,6 +20,7 @@ interface GraphViewProps {
     affectedNodes: AffectedNode[];
     perturbations: Perturbation[];
     selectedNodeId?: string | null;
+    highlightedPath?: string[];
     onNodeClick: (nodeId: string) => void;
     dimUnaffected?: boolean;
     settings: import('@/lib/types').GraphSettings;
@@ -99,7 +100,7 @@ const DOMAIN_COLORS: Record<string, string> = {
     neuro: '#8b5cf6', // violet-500
 };
 
-const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, onNodeClick, dimUnaffected, settings }, ref) => {
+const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const pulseIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -290,6 +291,43 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                             'height': settings.nodeSize * 1.5,
                             'font-weight': 'bold',
                         }
+                    },
+                    {
+                        selector: 'node.path-node',
+                        style: {
+                            'border-width': 4,
+                            'border-color': '#f59e0b',
+                            'opacity': 1,
+                            'font-weight': 'bold',
+                            'color': '#0f172a',
+                        }
+                    },
+                    {
+                        selector: 'node.path-source',
+                        style: {
+                            'border-color': '#0ea5e9',
+                        }
+                    },
+                    {
+                        selector: 'node.path-target',
+                        style: {
+                            'border-color': '#a855f7',
+                        }
+                    },
+                    {
+                        selector: 'edge.path-edge',
+                        style: {
+                            'line-color': '#f59e0b',
+                            'target-arrow-color': '#f59e0b',
+                            'width': Math.max(3, settings.linkThickness * 2.25),
+                            'opacity': 1,
+                        }
+                    },
+                    {
+                        selector: 'edge.path-muted-edge',
+                        style: {
+                            'opacity': 0.08,
+                        }
                     }
                 ],
                 layout: getLayoutOptions(settings)
@@ -383,6 +421,31 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             }
         });
 
+        cy.nodes().removeClass('path-node path-source path-target');
+        cy.edges().removeClass('path-edge path-muted-edge');
+
+        if (highlightedPath && highlightedPath.length > 0) {
+            highlightedPath.forEach((nodeId, i) => {
+                const ele = cy.$id(nodeId);
+                if (!ele || ele.empty()) return;
+                ele.addClass('path-node');
+                if (i === 0) ele.addClass('path-source');
+                if (i === highlightedPath.length - 1) ele.addClass('path-target');
+            });
+
+            for (let i = 0; i < highlightedPath.length - 1; i++) {
+                const source = highlightedPath[i];
+                const target = highlightedPath[i + 1];
+                cy.edges().forEach((edge) => {
+                    if (edge.data('source') === source && edge.data('target') === target) {
+                        edge.addClass('path-edge');
+                    }
+                });
+            }
+
+            cy.edges().not('.path-edge').addClass('path-muted-edge');
+        }
+
         // Update Cytoscape Stylesheet Reactively (only childless / data nodes)
         cy.style()
             .selector('node:childless')
@@ -398,7 +461,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             })
             .update();
 
-    }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings, clampedFontSize]);
+    }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings, clampedFontSize, highlightedPath]);
 
     return <div ref={containerRef} className="w-full h-full bg-[#f8fafc]" />;
 });
