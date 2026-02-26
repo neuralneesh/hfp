@@ -54,22 +54,27 @@ edges:
     rel: increases
     weight: 1.0
     description: "V2 receptors are Gs-coupled, increasing cAMP in collecting duct cells."
+  - source: cardio.cycle.atrial_stretch
+    target: renal.metabolism.anp_bnp
+    rel: increases
+    weight: 1.0
+    description: "Atrial stretch is the primary proximal stimulus for ANP/BNP secretion."
   - source: renal.volume.ecf_volume
     target: renal.metabolism.anp_bnp
     rel: increases
-    weight: 0.9
+    weight: 0.95
     delay: hours
-    description: "Increased effective circulating volume raises cardiac wall stretch and stimulates ANP/BNP release."
+    description: "Increased effective circulating volume drives atrial stretch and strongly promotes ANP/BNP release."
   - source: renal.volume.preload
     target: renal.metabolism.anp_bnp
     rel: increases
-    weight: 0.9
-    description: "Higher preload increases atrial/ventricular stretch, directly triggering ANP/BNP secretion."
+    weight: 0.95
+    description: "Higher venous return/preload increases atrial stretch and ANP/BNP output."
   - source: cardio.cycle.end_diastolic_volume
     target: renal.metabolism.anp_bnp
     rel: increases
-    weight: 0.9
-    description: "Higher EDV increases ventricular stretch and directly stimulates ANP/BNP release."
+    weight: 0.35
+    description: "EDV provides secondary ventricular stretch input, but is not the dominant ANP/BNP driver."
   - source: renal.metabolism.anp_bnp
     target: renal.raas.renin
     rel: decreases
