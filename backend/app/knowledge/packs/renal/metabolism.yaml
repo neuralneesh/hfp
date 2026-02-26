@@ -54,14 +54,6 @@ edges:
     rel: increases
     weight: 1.0
     description: "V2 receptors are Gs-coupled, increasing cAMP in collecting duct cells."
-  - source: renal.signaling.renal_camp
-    target: renal.volume.ecf_volume
-    rel: increases
-    weight: 0.9
-    delay: hours
-    context:
-      ckd: false
-    description: "Increased cAMP (via V2) promotes Aquaporin-2 insertion, increasing water reabsorption and ECF volume."
   - source: renal.volume.ecf_volume
     target: renal.metabolism.anp_bnp
     rel: increases
@@ -98,4 +90,6 @@ edges:
     rel: decreases
     weight: 0.6
     delay: hours
+    context:
+      ckd: false
     description: "Net ANP/BNP effect is reduced ECF volume via natriuresis/diuresis and RAAS suppression."

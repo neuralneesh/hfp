@@ -67,16 +67,16 @@ const getLayoutOptions = (settings: import('@/lib/types').GraphSettings): any =>
             padding: 60,
             nodeDimensionsIncludeLabels: true,
             uniformNodeDimensions: false,
-            nodeRepulsion: 8000,
-            idealEdgeLength: 80,
-            edgeElasticity: 0.45,
-            nestingFactor: 0.5,
-            gravity: 0.4,
-            gravityRange: 100,
-            gravityCompound: 1.5,
+            nodeRepulsion: 14000,
+            idealEdgeLength: 140,
+            edgeElasticity: 0.35,
+            nestingFactor: 0.25,
+            gravity: 0.25,
+            gravityRange: 120,
+            gravityCompound: 1.2,
             numIter: 5000,
-            tilingPaddingVertical: 20,
-            tilingPaddingHorizontal: 20,
+            tilingPaddingVertical: 40,
+            tilingPaddingHorizontal: 40,
         };
     }
 
@@ -100,6 +100,52 @@ const DOMAIN_COLORS: Record<string, string> = {
     neuro: '#8b5cf6', // violet-500
 };
 
+const buildGraphElements = (nodes: GNode[], edges: GEdge[], groupByDomain: boolean) => {
+    const nodeElements = nodes.map(node => {
+        const parent = groupByDomain ? `parent-${node.domain}` : undefined;
+        return {
+            data: {
+                id: node.id,
+                label: node.label,
+                domain: node.domain,
+                parent,
+            }
+        };
+    });
+
+    const parentElements = groupByDomain
+        ? Array.from(new Set(nodes.map(n => n.domain))).map(domain => ({
+            data: {
+                id: `parent-${domain}`,
+                label: domain.toUpperCase(),
+                isParent: true,
+                parentType: 'domain',
+                domain,
+            }
+        }))
+        : [];
+
+    const edgeElements = edges.map((edge, i) => ({
+        data: {
+            id: `e${i}`,
+            source: edge.source,
+            target: edge.target,
+            rel: edge.rel
+        }
+    }));
+
+    return [...nodeElements, ...parentElements, ...edgeElements];
+};
+
+const runLayout = (
+    cy: cytoscape.Core,
+    settings: import('@/lib/types').GraphSettings,
+) => {
+    const layout = cy.layout(getLayoutOptions(settings));
+    layout.one('layoutstop', () => cy.fit(undefined, 40));
+    layout.run();
+};
+
 const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
@@ -112,7 +158,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
         },
         runLayout: () => {
             if (!cyRef.current) return;
-            cyRef.current.layout(getLayoutOptions(settings)).run();
+            runLayout(cyRef.current, settings);
         }
     }));
 
@@ -176,27 +222,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
         if (!containerRef.current) return;
 
         if (!cyRef.current) {
-            const initialElements = nodes.length > 0 ? [
-                ...nodes.map(node => ({
-                    data: {
-                        id: node.id,
-                        label: node.label,
-                        domain: node.domain,
-                        parent: settings.groupByDomain ? `parent-${node.domain}` : undefined
-                    }
-                })),
-                ...(settings.groupByDomain ? Array.from(new Set(nodes.map(n => n.domain))).map(domain => ({
-                    data: { id: `parent-${domain}`, label: domain.toUpperCase(), isParent: true }
-                })) : []),
-                ...edges.map((edge, i) => ({
-                    data: {
-                        id: `e${i}`,
-                        source: edge.source,
-                        target: edge.target,
-                        rel: edge.rel
-                    }
-                }))
-            ] : [];
+            const initialElements = nodes.length > 0 ? buildGraphElements(nodes, edges, settings.groupByDomain) : [];
 
             cyRef.current = cytoscape({
                 container: containerRef.current,
@@ -212,7 +238,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                             'text-halign': 'center',
                             'font-size': `${clampedFontSize}px`,
                             'font-family': 'Inter, system-ui, sans-serif',
-                            'text-margin-y': '8px',
+                            'text-margin-y': 8,
                             'text-wrap': 'wrap',
                             'text-max-width': '100px',
                             'width': settings.nodeSize,
@@ -254,13 +280,13 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                         style: {
                             'background-opacity': 0.05,
                             'background-color': (ele: any) => {
-                                const domain = ele.id().replace('parent-', '');
+                                const domain = ele.data('domain');
                                 return DOMAIN_COLORS[domain] || '#cbd5e1';
                             },
                             'border-width': 1,
                             'border-style': 'dashed',
                             'border-color': (ele: any) => {
-                                const domain = ele.id().replace('parent-', '');
+                                const domain = ele.data('domain');
                                 return DOMAIN_COLORS[domain] || '#cbd5e1';
                             },
                             'label': 'data(label)',
@@ -270,10 +296,10 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                             'text-halign': 'center',
                             'text-margin-y': -10,
                             'color': (ele: any) => {
-                                const domain = ele.id().replace('parent-', '');
+                                const domain = ele.data('domain');
                                 return DOMAIN_COLORS[domain] || '#475569';
                             },
-                            'padding': 30,
+                            'padding': '30px',
                         }
                     },
                     {
@@ -330,12 +356,14 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                         }
                     }
                 ],
-                layout: getLayoutOptions(settings)
+                layout: { name: 'preset' }
             });
 
             cyRef.current.on('tap', 'node', (evt) => {
                 onNodeClick(evt.target.id());
             });
+
+            runLayout(cyRef.current, settings);
         }
 
         const cy = cyRef.current;
@@ -349,29 +377,9 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             (!settings.groupByDomain && cy.nodes('[?isParent]').length > 0);
 
         if (needsFullUpdate) {
-            const elements = [
-                ...nodes.map(node => ({
-                    data: {
-                        id: node.id,
-                        label: node.label,
-                        domain: node.domain,
-                        parent: settings.groupByDomain ? `parent-${node.domain}` : undefined
-                    }
-                })),
-                ...(settings.groupByDomain ? Array.from(new Set(nodes.map(n => n.domain))).map(domain => ({
-                    data: { id: `parent-${domain}`, label: domain.toUpperCase(), isParent: true }
-                })) : []),
-                ...edges.map((edge, i) => ({
-                    data: {
-                        id: `e${i}`,
-                        source: edge.source,
-                        target: edge.target,
-                        rel: edge.rel
-                    }
-                }))
-            ];
+            const elements = buildGraphElements(nodes, edges, settings.groupByDomain);
             cy.json({ elements });
-            cy.layout(getLayoutOptions(settings)).run();
+            runLayout(cy, settings);
         }
 
         // Always update visual state based on affectedNodes

@@ -1,0 +1,149 @@
+name: renal_integration
+nodes:
+  - id: renal.readout.proximal_na_reabsorption
+    label: Proximal Tubule Na+ Reabsorption
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.tal_na_reabsorption
+    label: TAL Na+ Reabsorption
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.dct_na_reabsorption
+    label: DCT Na+ Reabsorption
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.collecting_duct_na_reabsorption
+    label: Collecting Duct Na+ Reabsorption
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.collecting_duct_k_secretion
+    label: Collecting Duct K+ Secretion
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.collecting_duct_h_secretion
+    label: Collecting Duct H+ Secretion Tendency
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.proximal_water_reabsorption
+    label: Proximal Water Reabsorption
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+  - id: renal.readout.collecting_duct_water_reabsorption
+    label: Collecting Duct Water Reabsorption
+    domain: renal
+    type: variable
+    state_type: qualitative
+
+edges:
+  - source: renal.transport.nhe3
+    target: renal.readout.proximal_na_reabsorption
+    rel: increases
+    weight: 0.85
+
+  - source: renal.transport.nkcc2
+    target: renal.readout.tal_na_reabsorption
+    rel: increases
+    weight: 0.9
+
+  - source: renal.transport.ncc
+    target: renal.readout.dct_na_reabsorption
+    rel: increases
+    weight: 0.75
+
+  - source: renal.transport.enac
+    target: renal.readout.collecting_duct_na_reabsorption
+    rel: increases
+    weight: 0.85
+
+  - source: renal.transport.romk
+    target: renal.readout.collecting_duct_k_secretion
+    rel: increases
+    weight: 0.8
+
+  - source: renal.transport.enac
+    target: renal.readout.collecting_duct_h_secretion
+    rel: increases
+    weight: 0.3
+    description: "Distal sodium uptake via ENaC increases lumen negativity, favoring H+ secretion."
+
+  - source: renal.transport.aqp1
+    target: renal.readout.proximal_water_reabsorption
+    rel: increases
+    weight: 0.7
+
+  - source: renal.transport.aqp2
+    target: renal.readout.collecting_duct_water_reabsorption
+    rel: increases
+    weight: 0.85
+    context:
+      ckd: false
+
+  - source: renal.readout.proximal_na_reabsorption
+    target: renal.tubule.na_reabsorption
+    rel: increases
+    weight: 0.7
+
+  - source: renal.readout.tal_na_reabsorption
+    target: renal.tubule.na_reabsorption
+    rel: increases
+    weight: 0.75
+
+  - source: renal.readout.dct_na_reabsorption
+    target: renal.tubule.na_reabsorption
+    rel: increases
+    weight: 0.6
+
+  - source: renal.readout.collecting_duct_na_reabsorption
+    target: renal.tubule.na_reabsorption
+    rel: increases
+    weight: 0.65
+
+  - source: renal.readout.collecting_duct_k_secretion
+    target: renal.metabolism.potassium
+    rel: decreases
+    weight: 0.7
+
+  - source: renal.readout.collecting_duct_h_secretion
+    target: acidbase.blood.h_concentration
+    rel: decreases
+    weight: 0.2
+
+  - source: renal.readout.proximal_water_reabsorption
+    target: renal.volume.ecf_volume
+    rel: increases
+    weight: 0.5
+    delay: hours
+
+  - source: renal.readout.collecting_duct_water_reabsorption
+    target: renal.volume.ecf_volume
+    rel: increases
+    weight: 0.8
+    delay: hours
+    context:
+      ckd: false
+
+  - source: renal.readout.collecting_duct_water_reabsorption
+    target: renal.metabolism.osmolarity
+    rel: decreases
+    weight: 0.4
+    delay: hours
+
+  - source: renal.signaling.renal_camp
+    target: renal.transport.aqp2
+    rel: increases
+    weight: 0.95
+    description: "Renal cAMP is the direct intracellular signal that promotes AQP2 insertion."

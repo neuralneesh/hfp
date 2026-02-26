@@ -125,12 +125,17 @@ syndromes:
       - acidbase.blood.ph
 
   - id: aldosterone_volume_heart_rate_coupling
-    label: Aldosterone-Volume Heart Rate Coupling
+    label: Aldosterone-Volume Baroreflex Bradycardia Coupling
     sequence:
       - renal.raas.aldosterone
       - renal.raas.mr_receptor
       - renal.tubule.na_reabsorption
       - renal.volume.ecf_volume
+      - renal.volume.preload
+      - cardio.hemodynamics.stroke_volume
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+      - neuro.ans.sympathetic_tone
       - cardio.hemodynamics.heart_rate
 
   - id: aldosterone_to_baroreflex_chain
@@ -140,7 +145,8 @@ syndromes:
       - renal.raas.mr_receptor
       - renal.tubule.na_reabsorption
       - renal.volume.ecf_volume
-      - cardio.hemodynamics.heart_rate
+      - renal.volume.preload
+      - cardio.hemodynamics.stroke_volume
       - cardio.hemodynamics.cardiac_output
       - cardio.hemodynamics.map
       - neuro.ans.sympathetic_tone
@@ -177,6 +183,58 @@ syndromes:
       - renal.tubule.na_reabsorption
       - renal.volume.ecf_volume
 
+  - id: nhe3_proximal_reabsorption_axis
+    label: NHE3 Proximal Reabsorption Axis
+    sequence:
+      - renal.raas.at1_receptor
+      - renal.transport.nhe3
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+
+  - id: bartter_like_nkcc2_salt_wasting_pattern
+    label: Bartter-like NKCC2 Salt Wasting Pattern
+    sequence:
+      - renal.transport.nkcc2
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - renal.raas.renin
+      - renal.raas.aldosterone
+      - renal.metabolism.potassium
+
+  - id: gitelman_like_ncc_salt_wasting_pattern
+    label: Gitelman-like NCC Salt Wasting Pattern
+    sequence:
+      - renal.transport.ncc
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - renal.raas.renin
+      - renal.raas.aldosterone
+      - renal.metabolism.potassium
+
+  - id: liddle_like_enac_volume_expansion_pattern
+    label: Liddle-like ENaC Volume Expansion Pattern
+    sequence:
+      - renal.transport.enac
+      - renal.tubule.na_reabsorption
+      - renal.volume.ecf_volume
+      - cardio.hemodynamics.map
+      - renal.raas.renin
+
+  - id: nephrogenic_diabetes_insipidus_aqp2_pattern
+    label: Nephrogenic Diabetes Insipidus (AQP2/V2 Axis)
+    sequence:
+      - renal.metabolism.v2_receptor
+      - renal.transport.aqp2
+      - renal.volume.ecf_volume
+      - renal.metabolism.adh
+
+  - id: aqp1_concentrating_defect_pattern
+    label: AQP1-related Concentrating Defect Pattern
+    sequence:
+      - renal.transport.aqp1
+      - renal.volume.ecf_volume
+      - renal.metabolism.adh
+
   - id: frank_starling_compensation
     label: Frank-Starling Compensation
     sequence:
@@ -186,11 +244,15 @@ syndromes:
       - cardio.hemodynamics.map
 
   - id: bainbridge_reflex_pattern
-    label: Bainbridge Reflex Pattern
+    label: Volume Expansion Baroreflex Bradycardia Pattern
     sequence:
       - renal.volume.ecf_volume
-      - cardio.hemodynamics.heart_rate
+      - renal.volume.preload
+      - cardio.hemodynamics.stroke_volume
       - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.heart_rate
 
   - id: diffusion_limit_hypoxemia_pattern
     label: Diffusion-limited Hypoxemia Pattern

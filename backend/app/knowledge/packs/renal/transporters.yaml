@@ -1,0 +1,79 @@
+name: renal_transporters
+nodes:
+  - id: renal.transport.nhe3
+    label: NHE3 (Na+/H+ Exchanger)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [NHE3, SLC9A3]
+
+  - id: renal.transport.nkcc2
+    label: NKCC2 (Na+/K+/2Cl- Cotransporter)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [NKCC, NKCC2, SLC12A1]
+
+  - id: renal.transport.ncc
+    label: NCC (Na+/Cl- Cotransporter)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [NCC, SLC12A3]
+
+  - id: renal.transport.enac
+    label: ENaC (Epithelial Na+ Channel)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [ENaC, SCNN1]
+
+  - id: renal.transport.romk
+    label: ROMK (Renal Outer Medullary K+ Channel)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [ROMK, KCNJ1]
+
+  - id: renal.transport.aqp1
+    label: Aquaporin-1 (AQP1)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [AQP1]
+
+  - id: renal.transport.aqp2
+    label: Aquaporin-2 (AQP2)
+    domain: renal
+    type: process
+    state_type: qualitative
+    aliases: [AQP2]
+
+edges:
+  - source: renal.raas.at1_receptor
+    target: renal.transport.nhe3
+    rel: increases
+    weight: 0.8
+    description: "AT1 signaling stimulates proximal tubular NHE3 activity."
+
+  - source: renal.raas.mr_receptor
+    target: renal.transport.enac
+    rel: increases
+    weight: 0.9
+    context:
+      ckd: false
+    description: "Aldosterone-MR signaling increases ENaC expression and open probability."
+
+  - source: renal.raas.mr_receptor
+    target: renal.transport.romk
+    rel: increases
+    weight: 0.8
+    context:
+      ckd: false
+    description: "Aldosterone increases ROMK-mediated K+ secretion."
+
+  - source: renal.metabolism.v2_receptor
+    target: renal.transport.aqp2
+    rel: increases
+    weight: 1.0
+    description: "V2 signaling promotes AQP2 trafficking in collecting duct principal cells."

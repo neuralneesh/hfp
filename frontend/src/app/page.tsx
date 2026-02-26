@@ -43,13 +43,13 @@ export default function Home() {
   });
   const [graphSettings, setGraphSettings] = useState<GraphSettings>({
     nodeSize: 10,
-    fontSize: 16,
+    fontSize: 12,
     linkThickness: 1.5,
     nodeRepulsion: 450000,
     idealEdgeLength: 50,
     showArrows: true,
     groupByDomain: true,
-    textFadeThreshold: 0.5,
+    textFadeThreshold: 0.9,
   });
 
   const [isLoading, setIsLoading] = useState(true);

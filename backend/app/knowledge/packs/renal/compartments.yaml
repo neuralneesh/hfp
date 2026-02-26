@@ -1,0 +1,80 @@
+name: renal_compartments
+nodes:
+  - id: renal.compartment.proximal_tubule
+    label: Proximal Tubule
+    domain: renal
+    type: organ
+    state_type: qualitative
+
+  - id: renal.compartment.thick_ascending_limb
+    label: Thick Ascending Limb
+    domain: renal
+    type: organ
+    state_type: qualitative
+
+  - id: renal.compartment.distal_convoluted_tubule
+    label: Distal Convoluted Tubule
+    domain: renal
+    type: organ
+    state_type: qualitative
+
+  - id: renal.compartment.collecting_duct_principal_cell
+    label: Collecting Duct Principal Cell
+    domain: renal
+    type: organ
+    state_type: qualitative
+
+  - id: renal.compartment.collecting_duct_intercalated_cell
+    label: Collecting Duct Intercalated Cell
+    domain: renal
+    type: organ
+    state_type: qualitative
+
+edges:
+  - source: renal.compartment.proximal_tubule
+    target: renal.transport.nhe3
+    rel: enables
+    weight: 0.9
+    description: "NHE3 is primarily expressed in proximal tubular epithelium."
+
+  - source: renal.compartment.proximal_tubule
+    target: renal.transport.aqp1
+    rel: enables
+    weight: 0.9
+    description: "AQP1 supports proximal tubular water permeability."
+
+  - source: renal.compartment.thick_ascending_limb
+    target: renal.transport.nkcc2
+    rel: enables
+    weight: 0.9
+    description: "NKCC2 is the key TAL apical sodium transporter."
+
+  - source: renal.compartment.distal_convoluted_tubule
+    target: renal.transport.ncc
+    rel: enables
+    weight: 0.9
+    description: "NCC is the hallmark sodium transporter of the DCT."
+
+  - source: renal.compartment.collecting_duct_principal_cell
+    target: renal.transport.enac
+    rel: enables
+    weight: 0.9
+    description: "ENaC in principal cells mediates distal sodium uptake."
+
+  - source: renal.compartment.collecting_duct_principal_cell
+    target: renal.transport.romk
+    rel: enables
+    weight: 0.9
+    description: "ROMK channels in principal cells mediate K+ secretion."
+
+  - source: renal.compartment.collecting_duct_principal_cell
+    target: renal.transport.aqp2
+    rel: enables
+    weight: 0.9
+    description: "AQP2 is inserted into principal-cell apical membranes under ADH/V2 signaling."
+
+  - source: renal.compartment.collecting_duct_intercalated_cell
+    target: acidbase.blood.h_concentration
+    rel: decreases
+    weight: 0.1
+    description: "Alpha-intercalated cells contribute distal H+ secretion."

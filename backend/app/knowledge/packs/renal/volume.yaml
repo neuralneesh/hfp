@@ -30,8 +30,3 @@ edges:
     rel: increases
     weight: 0.9
     description: "Frank-Starling Law: increased preload increases SV"
-  - source: renal.volume.ecf_volume
-    target: cardio.hemodynamics.heart_rate
-    rel: increases
-    weight: 0.5
-    description: "Bainbridge Reflex: increased atrial stretch increases HR"

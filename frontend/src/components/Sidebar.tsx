@@ -231,11 +231,27 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                             <input
                                 type="range"
-                                min="16"
-                                max="42"
+                                min="10"
+                                max="24"
                                 step="1"
                                 value={graphSettings.fontSize}
                                 onChange={(e) => updateSetting('fontSize', parseInt(e.target.value))}
+                                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
+                                <span>Label zoom threshold</span>
+                                <span>{graphSettings.textFadeThreshold.toFixed(2)}x</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0.4"
+                                max="1.4"
+                                step="0.05"
+                                value={graphSettings.textFadeThreshold}
+                                onChange={(e) => updateSetting('textFadeThreshold', parseFloat(e.target.value))}
                                 className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             />
                         </div>
