@@ -452,7 +452,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
         cy.nodes().removeClass('path-node path-source path-target');
         cy.edges().removeClass('path-edge path-muted-edge');
         cy.edges().removeData('pathOrder');
-        cy.edges().removeStyle('line-color target-arrow-color width opacity');
+        cy.edges().removeStyle('line-color target-arrow-color width opacity line-style line-dash-pattern line-dash-offset');
 
         if (pathAnimationRef.current) {
             clearInterval(pathAnimationRef.current);
@@ -484,26 +484,30 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             const maxOrder = Math.max(0, highlightedPath.length - 2);
             let head = 0;
             pathAnimationRef.current = setInterval(() => {
-                head += 0.12;
-                if (head > maxOrder + 1.2) head = 0;
+                head += 0.14;
+                if (head > maxOrder + 1.5) head = 0;
 
                 cy.edges('.path-edge').forEach((edge) => {
                     const order = Number(edge.data('pathOrder') || 0);
                     const domainProgress = maxOrder === 0 ? 1 : order / maxOrder;
-                    const baseLineColor = blendHex('#22d3ee', '#a855f7', domainProgress);
-                    const baseArrowColor = blendHex('#38bdf8', '#c084fc', domainProgress);
+                    const baseLineColor = blendHex('#06b6d4', '#8b5cf6', domainProgress);
+                    const baseArrowColor = blendHex('#22d3ee', '#a78bfa', domainProgress);
                     const distance = Math.abs(order - head);
-                    const pulse = Math.max(0, 1 - distance / 1.25);
-                    const lineColor = blendHex(baseLineColor, '#f8fafc', pulse * 0.55);
-                    const arrowColor = blendHex(baseArrowColor, '#fef3c7', pulse * 0.45);
+                    const pulse = Math.max(0, 1 - distance / 0.9);
+                    const lineColor = blendHex(baseLineColor, '#ffffff', pulse * 0.7);
+                    const arrowColor = blendHex(baseArrowColor, '#fef9c3', pulse * 0.6);
+                    const dashOffset = -((head * 36) - (order * 10));
                     edge.style({
                         'line-color': lineColor as any,
                         'target-arrow-color': arrowColor as any,
-                        'width': Math.max(3.2, settings.linkThickness * (1.9 + pulse * 1.1)),
-                        'opacity': 0.62 + (pulse * 0.38),
+                        'line-style': 'dashed',
+                        'line-dash-pattern': [14, 12] as any,
+                        'line-dash-offset': dashOffset as any,
+                        'width': Math.max(3.5, settings.linkThickness * (2.1 + pulse * 1.2)),
+                        'opacity': 0.72 + (pulse * 0.28),
                     });
                 });
-            }, 70);
+            }, 50);
         }
 
         // Update Cytoscape Stylesheet Reactively (only childless / data nodes)
