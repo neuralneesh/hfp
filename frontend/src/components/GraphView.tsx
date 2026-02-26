@@ -170,11 +170,76 @@ const translateDomain = (cy: cytoscape.Core, domain: string, dx: number, dy: num
     });
 };
 
+interface DomainBounds {
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+    cx: number;
+    cy: number;
+    width: number;
+    height: number;
+}
+
+const domainBounds = (cy: cytoscape.Core, domain: string): DomainBounds | null => {
+    const domainNodes = cy.nodes(`[domain = "${domain}"]`).filter((n) => !n.data('isParent'));
+    if (domainNodes.length === 0) return null;
+    const bb = domainNodes.boundingBox();
+    return {
+        x1: bb.x1,
+        x2: bb.x2,
+        y1: bb.y1,
+        y2: bb.y2,
+        cx: (bb.x1 + bb.x2) / 2,
+        cy: (bb.y1 + bb.y2) / 2,
+        width: Math.max(1, bb.w),
+        height: Math.max(1, bb.h),
+    };
+};
+
+const resolveDomainOverlaps = (cy: cytoscape.Core, domains: string[], fixedDomain: string, minGap: number) => {
+    for (let iter = 0; iter < 12; iter++) {
+        let moved = false;
+        for (let i = 0; i < domains.length; i++) {
+            for (let j = i + 1; j < domains.length; j++) {
+                const a = domains[i];
+                const b = domains[j];
+                const aBounds = domainBounds(cy, a);
+                const bBounds = domainBounds(cy, b);
+                if (!aBounds || !bBounds) continue;
+
+                const overlapX = Math.min(aBounds.x2, bBounds.x2) - Math.max(aBounds.x1, bBounds.x1);
+                const overlapY = Math.min(aBounds.y2, bBounds.y2) - Math.max(aBounds.y1, bBounds.y1);
+                if (overlapX <= -minGap || overlapY <= -minGap) continue;
+
+                const neededX = overlapX + minGap;
+                const neededY = overlapY + minGap;
+                const pushAlongX = neededX < neededY;
+                const dirX = aBounds.cx <= bBounds.cx ? 1 : -1;
+                const dirY = aBounds.cy <= bBounds.cy ? 1 : -1;
+
+                if (a === fixedDomain && b !== fixedDomain) {
+                    translateDomain(cy, b, pushAlongX ? dirX * neededX : 0, pushAlongX ? 0 : dirY * neededY);
+                } else if (b === fixedDomain && a !== fixedDomain) {
+                    translateDomain(cy, a, pushAlongX ? -dirX * neededX : 0, pushAlongX ? 0 : -dirY * neededY);
+                } else if (a !== fixedDomain && b !== fixedDomain) {
+                    const dx = pushAlongX ? dirX * neededX * 0.5 : 0;
+                    const dy = pushAlongX ? 0 : dirY * neededY * 0.5;
+                    translateDomain(cy, a, -dx, -dy);
+                    translateDomain(cy, b, dx, dy);
+                }
+                moved = true;
+            }
+        }
+        if (!moved) break;
+    }
+};
+
 const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) => {
     if (!groupByDomain) return;
 
-    const neuroCenter = domainCentroid(cy, 'neuro');
-    if (!neuroCenter) return;
+    const neuroInitial = domainBounds(cy, 'neuro');
+    if (!neuroInitial) return;
 
     const extent = cy.extent();
     const canvasCenter = {
@@ -182,20 +247,35 @@ const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) =
         y: (extent.y1 + extent.y2) / 2,
     };
 
-    const neuroDx = canvasCenter.x - neuroCenter.x;
-    const neuroDy = canvasCenter.y - neuroCenter.y;
+    const neuroDx = canvasCenter.x - neuroInitial.cx;
+    const neuroDy = canvasCenter.y - neuroInitial.cy;
     translateDomain(cy, 'neuro', neuroDx, neuroDy);
 
-    const width = Math.max(500, extent.x2 - extent.x1);
-    const height = Math.max(500, extent.y2 - extent.y1);
-    const radiusX = width * 0.23;
-    const radiusY = height * 0.23;
+    const neuro = domainBounds(cy, 'neuro');
+    if (!neuro) return;
+    const pulm = domainBounds(cy, 'pulm');
+    const renal = domainBounds(cy, 'renal');
+    const acidbase = domainBounds(cy, 'acidbase');
+    const cardio = domainBounds(cy, 'cardio');
+    const gap = 150;
 
     const targetCenters: Record<string, { x: number; y: number }> = {
-        cardio: { x: canvasCenter.x, y: canvasCenter.y + radiusY },     // bottom
-        renal: { x: canvasCenter.x + radiusX, y: canvasCenter.y },      // right
-        pulm: { x: canvasCenter.x - radiusX, y: canvasCenter.y },       // left
-        acidbase: { x: canvasCenter.x, y: canvasCenter.y - radiusY },   // top
+        pulm: {
+            x: neuro.cx - (neuro.width / 2 + (pulm?.width || 0) / 2 + gap),
+            y: neuro.cy,
+        },
+        renal: {
+            x: neuro.cx + (neuro.width / 2 + (renal?.width || 0) / 2 + gap),
+            y: neuro.cy,
+        },
+        acidbase: {
+            x: neuro.cx,
+            y: neuro.cy - (neuro.height / 2 + (acidbase?.height || 0) / 2 + gap),
+        },
+        cardio: {
+            x: neuro.cx,
+            y: neuro.cy + (neuro.height / 2 + (cardio?.height || 0) / 2 + gap),
+        },
     };
 
     Object.entries(targetCenters).forEach(([domain, target]) => {
@@ -203,6 +283,8 @@ const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) =
         if (!centroid) return;
         translateDomain(cy, domain, target.x - centroid.x, target.y - centroid.y);
     });
+
+    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 60);
 };
 
 const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
