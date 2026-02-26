@@ -7,6 +7,7 @@ import ControlPanel from '@/components/ControlPanel';
 import RippleSummary from '@/components/RippleSummary';
 import TraceViewer from '@/components/TraceViewer';
 import ComparisonSummary from '@/components/ComparisonSummary';
+import DisplayMenu from '@/components/DisplayMenu';
 import {
   Node as GNode,
   Edge as GEdge,
@@ -19,7 +20,7 @@ import {
   ComparedNode
 } from '@/lib/types';
 import { getGraph, simulate, compareSimulations } from '@/lib/api';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, PanelLeftClose, PanelLeftOpen, RefreshCw } from 'lucide-react';
 
 export default function Home() {
   // State
@@ -58,6 +59,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasClinicalContext = useMemo(
     () => Object.values(context).some(Boolean),
@@ -229,25 +231,36 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 overflow-hidden font-sans antialiased text-slate-900">
-      <Sidebar
-        nodes={nodes}
-        selectedDomain={selectedDomain}
-        setSelectedDomain={setSelectedDomain}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        pinnedNodes={pinnedNodes}
-        togglePin={togglePin}
-        onNodeClick={setSelectedNodeId}
-        domainCounts={domainCounts}
-        graphSettings={graphSettings}
-        setGraphSettings={setGraphSettings}
-      />
+    <div className="relative flex h-screen w-full bg-slate-50 overflow-hidden font-sans antialiased text-slate-900">
+      <aside className={`absolute left-0 top-0 bottom-0 z-40 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <Sidebar
+          nodes={nodes}
+          selectedDomain={selectedDomain}
+          setSelectedDomain={setSelectedDomain}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          pinnedNodes={pinnedNodes}
+          togglePin={togglePin}
+          onNodeClick={setSelectedNodeId}
+          domainCounts={domainCounts}
+        />
+      </aside>
 
       <main className="flex-1 relative flex flex-col overflow-hidden">
-        {/* Header/Breadcrumbs can go here if needed */}
-
         <div className="flex-1 relative">
+          <button
+            onClick={() => setIsSidebarOpen((v) => !v)}
+            className={`absolute top-4 z-50 h-10 w-10 rounded-lg border bg-white/95 backdrop-blur shadow-md text-slate-700 flex items-center justify-center transition-all ${isSidebarOpen ? 'left-[332px]' : 'left-4'}`}
+            title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+          >
+            {isSidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+          </button>
+          <DisplayMenu
+            settings={graphSettings}
+            setSettings={setGraphSettings}
+            className={isSidebarOpen ? 'left-[380px]' : 'left-16'}
+          />
+
           <GraphView
             nodes={nodes}
             edges={edges}
