@@ -20,7 +20,7 @@ import {
   ComparedNode
 } from '@/lib/types';
 import { getGraph, simulate, compareSimulations } from '@/lib/api';
-import { Loader2, PanelLeftClose, PanelLeftOpen, RefreshCw } from 'lucide-react';
+import { Loader2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, RefreshCw } from 'lucide-react';
 
 export default function Home() {
   // State
@@ -60,6 +60,7 @@ export default function Home() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasClinicalContext = useMemo(
     () => Object.values(context).some(Boolean),
@@ -260,6 +261,13 @@ export default function Home() {
             setSettings={setGraphSettings}
             className={isSidebarOpen ? 'left-[380px]' : 'left-16'}
           />
+          <button
+            onClick={() => setIsRightSidebarOpen((v) => !v)}
+            className={`absolute top-4 z-50 h-10 w-10 rounded-lg border bg-white/95 backdrop-blur shadow-md text-slate-700 flex items-center justify-center transition-all ${isRightSidebarOpen ? 'right-[332px]' : 'right-4'}`}
+            title={isRightSidebarOpen ? 'Hide controls' : 'Show controls'}
+          >
+            {isRightSidebarOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+          </button>
 
           <GraphView
             nodes={nodes}
@@ -309,21 +317,23 @@ export default function Home() {
         </div>
       </main>
 
-      <ControlPanel
-        selectedNode={selectedNode}
-        onSimulate={runSimulation}
-        onCompare={runComparison}
-        onReset={resetSimulation}
-        perturbations={perturbations}
-        setPerturbations={setPerturbations}
-        options={options}
-        setOptions={setOptions}
-        context={context}
-        setContext={setContext}
-        isSimulating={isSimulating}
-        isComparing={isComparing}
-        canSimulate={canSimulate}
-      />
+      <aside className={`absolute right-0 top-0 bottom-0 z-40 transition-transform duration-300 ${isRightSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <ControlPanel
+          selectedNode={selectedNode}
+          onSimulate={runSimulation}
+          onCompare={runComparison}
+          onReset={resetSimulation}
+          perturbations={perturbations}
+          setPerturbations={setPerturbations}
+          options={options}
+          setOptions={setOptions}
+          context={context}
+          setContext={setContext}
+          isSimulating={isSimulating}
+          isComparing={isComparing}
+          canSimulate={canSimulate}
+        />
+      </aside>
     </div>
   );
 }
