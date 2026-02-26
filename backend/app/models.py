@@ -82,3 +82,24 @@ class SimulationResponse(BaseModel):
     affected_nodes: List[AffectedNode]
     traces: Dict[str, List[TraceStep]]
     max_ticks: int = 1
+
+
+class ComparedNode(BaseModel):
+    node_id: str
+    baseline_direction: Optional[Literal["up", "down", "unknown", "unchanged"]] = None
+    intervention_direction: Optional[Literal["up", "down", "unknown", "unchanged"]] = None
+    baseline_confidence: float = 0.0
+    intervention_confidence: float = 0.0
+    confidence_delta: float = 0.0
+    change_type: Literal["new", "resolved", "direction_flip", "strengthened", "weakened", "unchanged"]
+
+
+class CompareSimulationRequest(BaseModel):
+    baseline: SimulationRequest
+    intervention: SimulationRequest
+
+
+class CompareSimulationResponse(BaseModel):
+    baseline: SimulationResponse
+    intervention: SimulationResponse
+    changed_nodes: List[ComparedNode]

@@ -6,6 +6,7 @@ import GraphView from '@/components/GraphView';
 import ControlPanel from '@/components/ControlPanel';
 import RippleSummary from '@/components/RippleSummary';
 import TraceViewer from '@/components/TraceViewer';
+import ComparisonSummary from '@/components/ComparisonSummary';
 import {
   Node as GNode,
   Edge as GEdge,
@@ -14,9 +15,10 @@ import {
   SimulationOptions,
   Domain,
   TraceStep,
-  GraphSettings
+  GraphSettings,
+  ComparedNode
 } from '@/lib/types';
-import { getGraph, simulate } from '@/lib/api';
+import { getGraph, simulate, compareSimulations } from '@/lib/api';
 import { Loader2, RefreshCw } from 'lucide-react';
 
 export default function Home() {
@@ -25,6 +27,7 @@ export default function Home() {
   const [edges, setEdges] = useState<GEdge[]>([]);
   const [affectedNodes, setAffectedNodes] = useState<AffectedNode[]>([]);
   const [traces, setTraces] = useState<Record<string, TraceStep[]>>({});
+  const [comparisonChanges, setComparisonChanges] = useState<ComparedNode[]>([]);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<Domain | 'all'>('all');
@@ -54,6 +57,7 @@ export default function Home() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [isComparing, setIsComparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasClinicalContext = useMemo(
     () => Object.values(context).some(Boolean),
@@ -102,10 +106,38 @@ export default function Home() {
     }
   };
 
+  const runComparison = async () => {
+    if (!canSimulate) return;
+    try {
+      setIsComparing(true);
+      const res = await compareSimulations({
+        baseline: {
+          perturbations: [],
+          context,
+          options,
+        },
+        intervention: {
+          perturbations,
+          context,
+          options,
+        },
+      });
+      setComparisonChanges(res.changed_nodes);
+      setAffectedNodes(res.intervention.affected_nodes);
+      setTraces(res.intervention.traces);
+    } catch (err) {
+      console.error(err);
+      setError('Comparison failed.');
+    } finally {
+      setIsComparing(false);
+    }
+  };
+
   const resetSimulation = () => {
     setAffectedNodes([]);
     setTraces({});
     setPerturbations([]);
+    setComparisonChanges([]);
   };
 
   // UI Helpers
@@ -245,6 +277,10 @@ export default function Home() {
             affectedNodes={affectedNodes}
             nodes={nodes}
           />
+          <ComparisonSummary
+            changedNodes={comparisonChanges}
+            nodes={nodes}
+          />
 
           {error && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-100 border border-red-200 text-red-700 px-4 py-2 rounded-md shadow-md flex items-center gap-2 z-50">
@@ -263,6 +299,7 @@ export default function Home() {
       <ControlPanel
         selectedNode={selectedNode}
         onSimulate={runSimulation}
+        onCompare={runComparison}
         onReset={resetSimulation}
         perturbations={perturbations}
         setPerturbations={setPerturbations}
@@ -271,6 +308,7 @@ export default function Home() {
         context={context}
         setContext={setContext}
         isSimulating={isSimulating}
+        isComparing={isComparing}
         canSimulate={canSimulate}
       />
     </div>

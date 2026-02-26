@@ -12,6 +12,7 @@ function cn(...inputs: Array<string | false | null | undefined>) {
 interface ControlPanelProps {
     selectedNode: GNode | null;
     onSimulate: () => void;
+    onCompare: () => void;
     onReset: () => void;
     perturbations: Perturbation[];
     setPerturbations: (p: Perturbation[]) => void;
@@ -20,6 +21,7 @@ interface ControlPanelProps {
     context: Record<string, boolean>;
     setContext: (c: Record<string, boolean>) => void;
     isSimulating: boolean;
+    isComparing: boolean;
     canSimulate: boolean;
 }
 
@@ -35,6 +37,7 @@ const CONTEXT_OPTIONS = [
 const ControlPanel: React.FC<ControlPanelProps> = ({
     selectedNode,
     onSimulate,
+    onCompare,
     onReset,
     perturbations,
     setPerturbations,
@@ -43,6 +46,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     context,
     setContext,
     isSimulating,
+    isComparing,
     canSimulate,
 }) => {
     const addPerturbation = (op: "increase" | "decrease" | "block") => {
@@ -214,6 +218,18 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                 >
                     <Play className={cn("w-4 h-4 fill-current", isSimulating && "animate-pulse")} />
                     {isSimulating ? "Simulating..." : "Run Simulation"}
+                </button>
+                <button
+                    onClick={onCompare}
+                    disabled={isComparing || !canSimulate}
+                    className={cn(
+                        "w-full mt-2 py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95 border",
+                        canSimulate
+                            ? "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                            : "bg-slate-200 text-slate-400 cursor-not-allowed border-slate-200"
+                    )}
+                >
+                    {isComparing ? "Comparing..." : "Compare vs Baseline"}
                 </button>
                 {!canSimulate && (
                     <p className="mt-2 text-[10px] text-slate-500">
