@@ -6,23 +6,12 @@ nodes:
     type: variable
     state_type: qualitative
     description: "Max volume of air the lungs can hold."
-  - id: pulm.pft.frc
-    label: Functional Residual Capacity (FRC)
-    domain: pulm
-    type: variable
-    state_type: qualitative
-    description: "Volume remaining after a normal tidal breath."
   - id: pulm.pft.fev1_fvc
     label: FEV1 / FVC Ratio
     domain: pulm
     type: variable
     state_type: qualitative
     description: "Clinical marker for airway obstruction."
-  - id: pulm.anatomy.lobes
-    label: Lung Lobar Structure
-    domain: pulm
-    type: variable
-    state_type: qualitative
   - id: pulm.anatomy.pleura
     label: Pleural Integrity
     domain: pulm
