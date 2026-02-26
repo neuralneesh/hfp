@@ -481,22 +481,29 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
 
             cy.edges().not('.path-edge').addClass('path-muted-edge');
 
-            let phase = 0;
+            const maxOrder = Math.max(0, highlightedPath.length - 2);
+            let head = 0;
             pathAnimationRef.current = setInterval(() => {
-                phase += 0.35;
+                head += 0.12;
+                if (head > maxOrder + 1.2) head = 0;
+
                 cy.edges('.path-edge').forEach((edge) => {
                     const order = Number(edge.data('pathOrder') || 0);
-                    const wave = (Math.sin(phase - order * 1.1) + 1) / 2;
-                    const lineColor = blendHex('#f59e0b', '#38bdf8', wave);
-                    const arrowColor = blendHex('#f59e0b', '#a78bfa', wave);
+                    const domainProgress = maxOrder === 0 ? 1 : order / maxOrder;
+                    const baseLineColor = blendHex('#22d3ee', '#a855f7', domainProgress);
+                    const baseArrowColor = blendHex('#38bdf8', '#c084fc', domainProgress);
+                    const distance = Math.abs(order - head);
+                    const pulse = Math.max(0, 1 - distance / 1.25);
+                    const lineColor = blendHex(baseLineColor, '#f8fafc', pulse * 0.55);
+                    const arrowColor = blendHex(baseArrowColor, '#fef3c7', pulse * 0.45);
                     edge.style({
                         'line-color': lineColor as any,
                         'target-arrow-color': arrowColor as any,
-                        'width': Math.max(3.5, settings.linkThickness * (2 + wave * 0.8)),
-                        'opacity': 1,
+                        'width': Math.max(3.2, settings.linkThickness * (1.9 + pulse * 1.1)),
+                        'opacity': 0.62 + (pulse * 0.38),
                     });
                 });
-            }, 90);
+            }, 70);
         }
 
         // Update Cytoscape Stylesheet Reactively (only childless / data nodes)

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Domain, Node as GNode } from '@/lib/types';
-import { Search, Pin, Shield, Activity, Droplets, Wind, Zap, Settings2, ChevronDown, ChevronRight, MousePointer2 } from 'lucide-react';
+import { Search, Pin, Shield } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 function cn(...inputs: Array<string | false | null | undefined>) {
@@ -19,17 +19,7 @@ interface SidebarProps {
     togglePin: (nodeId: string) => void;
     onNodeClick: (nodeId: string) => void;
     domainCounts: Record<string, number>;
-    graphSettings: import('@/lib/types').GraphSettings;
-    setGraphSettings: (settings: import('@/lib/types').GraphSettings) => void;
 }
-
-const DOMAIN_ICONS: Record<string, React.ReactNode> = {
-    cardio: <Activity className="w-4 h-4" />,
-    renal: <Droplets className="w-4 h-4" />,
-    pulm: <Wind className="w-4 h-4" />,
-    acidbase: <Zap className="w-4 h-4" />,
-    neuro: <Shield className="w-4 h-4" />,
-};
 
 const DOMAIN_COLORS: Record<string, string> = {
     cardio: 'bg-red-500',
@@ -49,16 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     togglePin,
     onNodeClick,
     domainCounts,
-    graphSettings,
-    setGraphSettings,
 }) => {
-    const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
-    const [isForcesOpen, setIsForcesOpen] = React.useState(false);
-
-    const updateSetting = <K extends keyof import('@/lib/types').GraphSettings>(key: K, value: import('@/lib/types').GraphSettings[K]) => {
-        setGraphSettings({ ...graphSettings, [key]: value });
-    };
-
     const filteredNodesBySearch = nodes.filter(node =>
         node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
         node.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -66,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     );
 
     return (
-        <div className="w-80 h-full border-r bg-white flex flex-col overflow-hidden">
+        <div className="w-80 h-full border-r bg-white/95 backdrop-blur flex flex-col overflow-hidden shadow-xl">
             <div className="p-4 border-b">
                 <h1 className="text-xl font-bold text-slate-800">HFP</h1>
                 <p className="text-xs text-slate-500">Human Framework Project</p>
@@ -168,156 +149,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Graph Settings (Obsidian Style) */}
-            <div className="border-t bg-slate-50/50">
-                <button
-                    onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-slate-100/50 transition-colors"
-                >
-                    <div className="flex items-center gap-2">
-                        <Settings2 className="w-4 h-4 text-slate-500" />
-                        <span className="text-sm font-semibold text-slate-700">Display</span>
-                    </div>
-                    {isSettingsOpen ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
-                </button>
-
-                {isSettingsOpen && (
-                    <div className="px-4 pb-4 space-y-4">
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                <span>Arrows</span>
-                                <input
-                                    type="checkbox"
-                                    checked={graphSettings.showArrows}
-                                    onChange={(e) => updateSetting('showArrows', e.target.checked)}
-                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                />
-                            </div>
-                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                <span>Group by Domain</span>
-                                <input
-                                    type="checkbox"
-                                    checked={graphSettings.groupByDomain}
-                                    onChange={(e) => updateSetting('groupByDomain', e.target.checked)}
-                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                <span>Node size</span>
-                                <span>{graphSettings.nodeSize}</span>
-                            </div>
-                            <input
-                                type="range"
-                                min="2"
-                                max="20"
-                                step="1"
-                                value={graphSettings.nodeSize}
-                                onChange={(e) => updateSetting('nodeSize', parseInt(e.target.value))}
-                                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                <span>Text size</span>
-                                <span>{graphSettings.fontSize}px</span>
-                            </div>
-                            <input
-                                type="range"
-                                min="10"
-                                max="24"
-                                step="1"
-                                value={graphSettings.fontSize}
-                                onChange={(e) => updateSetting('fontSize', parseInt(e.target.value))}
-                                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                <span>Label zoom threshold</span>
-                                <span>{graphSettings.textFadeThreshold.toFixed(2)}x</span>
-                            </div>
-                            <input
-                                type="range"
-                                min="0.4"
-                                max="1.4"
-                                step="0.05"
-                                value={graphSettings.textFadeThreshold}
-                                onChange={(e) => updateSetting('textFadeThreshold', parseFloat(e.target.value))}
-                                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                <span>Link thickness</span>
-                                <span>{graphSettings.linkThickness}</span>
-                            </div>
-                            <input
-                                type="range"
-                                min="0.5"
-                                max="5"
-                                step="0.1"
-                                value={graphSettings.linkThickness}
-                                onChange={(e) => updateSetting('linkThickness', parseFloat(e.target.value))}
-                                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                            />
-                        </div>
-
-                        <button
-                            onClick={() => setIsForcesOpen(!isForcesOpen)}
-                            className="w-full flex items-center justify-between py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600 transition-colors"
-                        >
-                            <div className="flex items-center gap-1.5">
-                                <Activity className="w-3 h-3" />
-                                <span>Forces</span>
-                            </div>
-                            {isForcesOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                        </button>
-
-                        {isForcesOpen && (
-                            <div className="space-y-4 pt-1">
-                                <div className="space-y-1.5">
-                                    <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                        <span>Repel force</span>
-                                        <span>{Math.round(graphSettings.nodeRepulsion / 1000)}k</span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min="100000"
-                                        max="1000000"
-                                        step="50000"
-                                        value={graphSettings.nodeRepulsion}
-                                        onChange={(e) => updateSetting('nodeRepulsion', parseInt(e.target.value))}
-                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                    />
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <div className="flex justify-between text-[11px] font-medium text-slate-500">
-                                        <span>Link distance</span>
-                                        <span>{graphSettings.idealEdgeLength}</span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min="100"
-                                        max="800"
-                                        step="50"
-                                        value={graphSettings.idealEdgeLength}
-                                        onChange={(e) => updateSetting('idealEdgeLength', parseInt(e.target.value))}
-                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
