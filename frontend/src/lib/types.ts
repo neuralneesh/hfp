@@ -74,6 +74,27 @@ export interface SimulationResponse {
     max_ticks: number;
 }
 
+export interface ComparedNode {
+    node_id: string;
+    baseline_direction: Direction | null;
+    intervention_direction: Direction | null;
+    baseline_confidence: number;
+    intervention_confidence: number;
+    confidence_delta: number;
+    change_type: "new" | "resolved" | "direction_flip" | "strengthened" | "weakened" | "unchanged";
+}
+
+export interface CompareSimulationRequest {
+    baseline: SimulationRequest;
+    intervention: SimulationRequest;
+}
+
+export interface CompareSimulationResponse {
+    baseline: SimulationResponse;
+    intervention: SimulationResponse;
+    changed_nodes: ComparedNode[];
+}
+
 export interface GraphData {
     nodes: Node[];
     edges: Edge[];

@@ -38,6 +38,13 @@ Click any node in the graph, and use the **Control Panel** (right sidebar) to ap
 ### Causal Traces
 When a node is affected by a simulation, you can click it to view the **Causal Traces** (logic paths) that explain why that node changed.
 
+### Baseline Comparison
+Use **Compare vs Baseline** in the control panel to run two simulations in one pass:
+- Baseline: selected clinical context only
+- Intervention: clinical context + selected perturbations
+
+The UI surfaces the nodes whose direction or confidence changed most, so intervention-specific effects stand out from background context physiology.
+
 ### Adding New Domain Packs
 1. Create a new YAML file in `backend/app/knowledge/packs/<your_domain>/pack_name.yaml`.
 2. Define nodes with canonical IDs (e.g., `neuro.ans.vagal_tone`).

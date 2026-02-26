@@ -48,3 +48,16 @@ def test_traces(engine):
     assert "C" in res.traces
     assert len(res.traces["C"][0].path) == 3
     assert res.traces["C"][0].path == ["A", "B", "C"]
+
+
+def test_max_hops_caps_propagation_depth(engine):
+    request = SimulationRequest(
+        perturbations=[Perturbation(node_id="A", op="increase")],
+        options=SimulationOptions(max_hops=1)
+    )
+    res = engine.simulate(request)
+
+    affected = {a.node_id: a for a in res.affected_nodes}
+    assert affected["A"].direction == "up"
+    assert affected["B"].direction == "up"
+    assert "C" not in affected

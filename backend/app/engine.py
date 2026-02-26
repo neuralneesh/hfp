@@ -30,7 +30,7 @@ class ReasoningEngine:
 
         # Initial perturbations (Tick 0)
         for p in request.perturbations:
-            direction = "up" if p.op == "increase" else "down" if p.op == "decrease" else "unchanged"
+            direction = "up" if p.op == "increase" else "down" if p.op in {"decrease", "block"} else "unchanged"
             if p.node_id not in self.nodes: continue
             
             influence_buffer[p.node_id][0].append({
@@ -52,7 +52,11 @@ class ReasoningEngine:
                     continue
                 
                 # Resolve influenced state
-                resolved = self._resolve_influence(influence_buffer[curr_node_id][tick], curr_node_id, tick)
+                resolved, dominant_hops = self._resolve_influence(
+                    influence_buffer[curr_node_id][tick],
+                    curr_node_id,
+                    tick,
+                )
                 if not resolved:
                     continue
                 
@@ -64,8 +68,11 @@ class ReasoningEngine:
                 node_states[curr_node_id][tick] = resolved
                 node_activity[curr_node_id][tick] = resolved.confidence if resolved.direction == "up" else -resolved.confidence
                 resolved_in_this_tick.add(curr_node_id)
+                can_propagate = dominant_hops < request.options.max_hops
 
                 # Propagate from this node
+                if not can_propagate:
+                    continue
                 for edge in self.adj[curr_node_id]:
                     if not self._context_matches(edge, request.context):
                         continue
@@ -209,8 +216,9 @@ class ReasoningEngine:
                     return first_match_idx
         return None
 
-    def _resolve_influence(self, influences, node_id, tick) -> Optional[AffectedNode]:
-        if not influences: return None
+    def _resolve_influence(self, influences, node_id, tick) -> Tuple[Optional[AffectedNode], int]:
+        if not influences:
+            return None, 0
         
         pri_map = {"low": 1, "medium": 2, "high": 3, "ultra": 10}
         max_pri = max(pri_map.get(inf["priority"], 2) for inf in influences)
@@ -228,7 +236,17 @@ class ReasoningEngine:
             confidence = (down_score - up_score) / (up_score + down_score + 0.1)
             confidence = max(0.2, min(1.0, confidence + 0.4))
         else:
-            return None
+            return None, 0
+
+        dominant = max(
+            (
+                inf for inf in top_influences
+                if inf["direction"] == direction
+            ),
+            key=lambda inf: inf["confidence"],
+            default=None,
+        )
+        dominant_hops = max(0, len(dominant["path"]) - 1) if dominant else 0
             
         rev_time_map = {0: "immediate", 1: "minutes", 2: "hours", 3: "days"}
         
@@ -239,7 +257,7 @@ class ReasoningEngine:
             confidence=confidence,
             timescale=rev_time_map.get(tick, "immediate"),
             tick=tick
-        )
+        ), dominant_hops
 
     def _generate_step_description(self, source_id, target_id, source_dir, target_dir, rel) -> str:
         source_label = self.nodes[source_id].label
