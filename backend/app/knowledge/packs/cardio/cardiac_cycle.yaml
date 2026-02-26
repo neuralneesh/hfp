@@ -46,6 +46,13 @@ nodes:
     state_type: qualitative
     description: "Volume of blood in ventricle at end of diastole."
 
+  - id: cardio.cycle.atrial_stretch
+    label: Atrial Stretch
+    domain: cardio
+    type: process
+    state_type: qualitative
+    description: "Mechanical stretch of atrial myocardium due to venous return and effective circulating volume."
+
 edges:
   # Phase sequence
   - source: cardio.cycle.diastole
@@ -102,6 +109,25 @@ edges:
     rel: increases
     weight: 0.9
     description: "EDV determines stroke volume (Frank-Starling)."
+
+  - source: renal.volume.preload
+    target: cardio.cycle.atrial_stretch
+    rel: increases
+    weight: 1.0
+    description: "Higher venous return/preload increases atrial wall stretch."
+
+  - source: renal.volume.ecf_volume
+    target: cardio.cycle.atrial_stretch
+    rel: increases
+    weight: 0.9
+    delay: hours
+    description: "Effective circulating volume expansion raises atrial stretch over time."
+
+  - source: cardio.cycle.end_diastolic_volume
+    target: cardio.cycle.atrial_stretch
+    rel: increases
+    weight: 0.4
+    description: "EDV contributes to chamber stretch but is not the primary ANP trigger."
 
   - source: cardio.cycle.end_systolic_volume
     target: cardio.hemodynamics.stroke_volume
