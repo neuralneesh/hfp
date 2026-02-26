@@ -16,12 +16,6 @@ nodes:
     min_level: 0.0
     max_level: 1.0
     description: "Reflexive vasoconstriction of pulmonary vessels in response to alveolar hypoxia (High V/Q matching)."
-  - id: pulm.hemo.lung_zones
-    label: West Lung Zones (1, 2, 3)
-    domain: pulm
-    type: process
-    state_type: qualitative
-    description: "Flow distribution based on the relationship between PA, Pa, and Pv pressures."
   - id: pulm.hemo.recruitment
     label: Capillary Recruitment
     domain: pulm
