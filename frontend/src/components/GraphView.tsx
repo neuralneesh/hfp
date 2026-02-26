@@ -150,7 +150,27 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const pulseIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const pathAnimationRef = useRef<NodeJS.Timeout | null>(null);
     const clampedFontSize = Math.max(16, Math.min(42, settings.fontSize));
+
+    const blendHex = (a: string, b: string, t: number): string => {
+        const norm = Math.max(0, Math.min(1, t));
+        const hexToRgb = (hex: string) => {
+            const clean = hex.replace('#', '');
+            const int = parseInt(clean, 16);
+            return {
+                r: (int >> 16) & 255,
+                g: (int >> 8) & 255,
+                b: int & 255,
+            };
+        };
+        const c1 = hexToRgb(a);
+        const c2 = hexToRgb(b);
+        const r = Math.round(c1.r + (c2.r - c1.r) * norm);
+        const g = Math.round(c1.g + (c2.g - c1.g) * norm);
+        const bVal = Math.round(c1.b + (c2.b - c1.b) * norm);
+        return `rgb(${r}, ${g}, ${bVal})`;
+    };
 
     useImperativeHandle(ref, () => ({
         fit: () => {
@@ -431,6 +451,13 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
 
         cy.nodes().removeClass('path-node path-source path-target');
         cy.edges().removeClass('path-edge path-muted-edge');
+        cy.edges().removeData('pathOrder');
+        cy.edges().removeStyle('line-color target-arrow-color width opacity');
+
+        if (pathAnimationRef.current) {
+            clearInterval(pathAnimationRef.current);
+            pathAnimationRef.current = null;
+        }
 
         if (highlightedPath && highlightedPath.length > 0) {
             highlightedPath.forEach((nodeId, i) => {
@@ -447,11 +474,29 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                 cy.edges().forEach((edge) => {
                     if (edge.data('source') === source && edge.data('target') === target) {
                         edge.addClass('path-edge');
+                        edge.data('pathOrder', i);
                     }
                 });
             }
 
             cy.edges().not('.path-edge').addClass('path-muted-edge');
+
+            let phase = 0;
+            pathAnimationRef.current = setInterval(() => {
+                phase += 0.35;
+                cy.edges('.path-edge').forEach((edge) => {
+                    const order = Number(edge.data('pathOrder') || 0);
+                    const wave = (Math.sin(phase - order * 1.1) + 1) / 2;
+                    const lineColor = blendHex('#f59e0b', '#38bdf8', wave);
+                    const arrowColor = blendHex('#f59e0b', '#a78bfa', wave);
+                    edge.style({
+                        'line-color': lineColor as any,
+                        'target-arrow-color': arrowColor as any,
+                        'width': Math.max(3.5, settings.linkThickness * (2 + wave * 0.8)),
+                        'opacity': 1,
+                    });
+                });
+            }, 90);
         }
 
         // Update Cytoscape Stylesheet Reactively (only childless / data nodes)
@@ -470,6 +515,14 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             .update();
 
     }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings, clampedFontSize, highlightedPath]);
+
+    useEffect(() => {
+        return () => {
+            if (pathAnimationRef.current) {
+                clearInterval(pathAnimationRef.current);
+            }
+        };
+    }, []);
 
     return <div ref={containerRef} className="w-full h-full bg-[#f8fafc]" />;
 });
