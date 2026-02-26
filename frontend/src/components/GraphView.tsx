@@ -257,7 +257,7 @@ const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) =
     const renal = domainBounds(cy, 'renal');
     const acidbase = domainBounds(cy, 'acidbase');
     const cardio = domainBounds(cy, 'cardio');
-    const gap = 150;
+    const gap = 240;
 
     const targetCenters: Record<string, { x: number; y: number }> = {
         pulm: {
@@ -284,7 +284,7 @@ const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) =
         translateDomain(cy, domain, target.x - centroid.x, target.y - centroid.y);
     });
 
-    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 60);
+    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 120);
 };
 
 const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
