@@ -142,8 +142,67 @@ const runLayout = (
     settings: import('@/lib/types').GraphSettings,
 ) => {
     const layout = cy.layout(getLayoutOptions(settings));
-    layout.one('layoutstop', () => cy.fit(undefined, 40));
+    layout.one('layoutstop', () => {
+        arrangeDomainsAroundNeuro(cy, settings.groupByDomain);
+        cy.fit(undefined, 40);
+    });
     layout.run();
+};
+
+const domainCentroid = (cy: cytoscape.Core, domain: string) => {
+    const nodes = cy.nodes(`[domain = "${domain}"]`).filter((n) => !n.data('isParent'));
+    if (nodes.length === 0) return null;
+    let x = 0;
+    let y = 0;
+    nodes.forEach((node) => {
+        const pos = node.position();
+        x += pos.x;
+        y += pos.y;
+    });
+    return { x: x / nodes.length, y: y / nodes.length };
+};
+
+const translateDomain = (cy: cytoscape.Core, domain: string, dx: number, dy: number) => {
+    const nodes = cy.nodes(`[domain = "${domain}"]`).filter((n) => !n.data('isParent'));
+    nodes.forEach((node) => {
+        const pos = node.position();
+        node.position({ x: pos.x + dx, y: pos.y + dy });
+    });
+};
+
+const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) => {
+    if (!groupByDomain) return;
+
+    const neuroCenter = domainCentroid(cy, 'neuro');
+    if (!neuroCenter) return;
+
+    const extent = cy.extent();
+    const canvasCenter = {
+        x: (extent.x1 + extent.x2) / 2,
+        y: (extent.y1 + extent.y2) / 2,
+    };
+
+    const neuroDx = canvasCenter.x - neuroCenter.x;
+    const neuroDy = canvasCenter.y - neuroCenter.y;
+    translateDomain(cy, 'neuro', neuroDx, neuroDy);
+
+    const width = Math.max(500, extent.x2 - extent.x1);
+    const height = Math.max(500, extent.y2 - extent.y1);
+    const radiusX = width * 0.23;
+    const radiusY = height * 0.23;
+
+    const targetCenters: Record<string, { x: number; y: number }> = {
+        cardio: { x: canvasCenter.x, y: canvasCenter.y + radiusY },     // bottom
+        renal: { x: canvasCenter.x + radiusX, y: canvasCenter.y },      // right
+        pulm: { x: canvasCenter.x - radiusX, y: canvasCenter.y },       // left
+        acidbase: { x: canvasCenter.x, y: canvasCenter.y - radiusY },   // top
+    };
+
+    Object.entries(targetCenters).forEach(([domain, target]) => {
+        const centroid = domainCentroid(cy, domain);
+        if (!centroid) return;
+        translateDomain(cy, domain, target.x - centroid.x, target.y - centroid.y);
+    });
 };
 
 const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
