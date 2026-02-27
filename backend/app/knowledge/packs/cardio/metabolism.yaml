@@ -3,17 +3,20 @@ nodes:
   - id: cardio.metabolism.myocardial_o2_demand
     label: Myocardial O2 Demand
     domain: cardio
+    subdomain: metabolism
     type: variable
     state_type: qualitative
     description: "Oxygen required by the myocardium for work."
   - id: cardio.metabolism.myocardial_o2_supply
     label: Myocardial O2 Supply
     domain: cardio
+    subdomain: metabolism
     type: variable
     state_type: qualitative
   - id: cardio.metabolism.cardiac_injury
     label: Cardiac Injury Markers
     domain: cardio
+    subdomain: metabolism
     type: variable
     state_type: qualitative
     aliases: ["Troponin", "CK-MB"]

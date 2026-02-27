@@ -5,6 +5,7 @@ class Node(BaseModel):
     id: str
     label: str
     domain: Literal["cardio", "pulm", "renal", "acidbase", "neuro"]
+    subdomain: Optional[str] = None
     type: str  # hormone, variable, organ, vessel, process
     state_type: Literal["qualitative", "numeric"] = "qualitative"
     unit: Optional[str] = None

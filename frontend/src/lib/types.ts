@@ -7,6 +7,7 @@ export interface Node {
     id: string;
     label: string;
     domain: Domain;
+    subdomain?: string;
     type: NodeType;
     state_type: "qualitative" | "numeric";
     unit?: string;

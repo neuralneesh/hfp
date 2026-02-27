@@ -3,44 +3,52 @@ nodes:
   - id: cardio.hemodynamics.map
     label: Mean Arterial Pressure (MAP)
     domain: cardio
+    subdomain: hemodynamics
     type: variable
     state_type: qualitative
     aliases: ["Blood Pressure"]
   - id: cardio.hemodynamics.cardiac_output
     label: Cardiac Output (CO)
     domain: cardio
+    subdomain: hemodynamics
     type: variable
     state_type: qualitative
   - id: cardio.hemodynamics.heart_rate
     label: Heart Rate (HR)
     domain: cardio
+    subdomain: hemodynamics
     type: variable
     state_type: qualitative
   - id: cardio.hemodynamics.stroke_volume
     label: Stroke Volume (SV)
     domain: cardio
+    subdomain: hemodynamics
     type: variable
     state_type: qualitative
   - id: cardio.mechanics.inotropy
     label: Myocardial Inotropy
     domain: cardio
+    subdomain: mechanics
     type: process
     state_type: qualitative
     description: "Contractile strength of the myocardium."
   - id: cardio.hemodynamics.svr
     label: Systemic Vascular Resistance (SVR)
     domain: cardio
+    subdomain: hemodynamics
     type: variable
     state_type: qualitative
   - id: cardio.electrophysiology.av_conduction
     label: AV Conduction
     domain: cardio
+    subdomain: electrophysiology
     type: process
     state_type: qualitative
     description: "Speed of electrical signal propagation through the AV node."
   - id: acidbase.blood.h_concentration
     label: "[H+] Concentration"
     domain: acidbase
+    subdomain: blood
     type: variable
     state_type: qualitative
 

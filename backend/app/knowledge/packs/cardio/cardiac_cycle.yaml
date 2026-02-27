@@ -5,6 +5,7 @@ nodes:
   - id: cardio.cycle.diastole
     label: Diastole
     domain: cardio
+    subdomain: cycle
     type: process
     state_type: qualitative
     description: "The relaxation phase of the cardiac cycle when ventricles fill with blood."
@@ -12,6 +13,7 @@ nodes:
   - id: cardio.cycle.systole
     label: Systole
     domain: cardio
+    subdomain: cycle
     type: process
     state_type: qualitative
     description: "The contraction phase of the cardiac cycle when blood is ejected."
@@ -20,6 +22,7 @@ nodes:
   - id: cardio.cycle.ventricular_filling
     label: Ventricular Filling
     domain: cardio
+    subdomain: cycle
     type: process
     state_type: qualitative
     description: "Blood flow from atria into ventricles during diastole."
@@ -27,6 +30,7 @@ nodes:
   - id: cardio.cycle.ventricular_ejection
     label: Ventricular Ejection
     domain: cardio
+    subdomain: cycle
     type: process
     state_type: qualitative
     description: "Blood ejection from ventricles into aorta/pulmonary artery during systole."
@@ -35,6 +39,7 @@ nodes:
   - id: cardio.cycle.end_systolic_volume
     label: End-Systolic Volume (ESV)
     domain: cardio
+    subdomain: cycle
     type: variable
     state_type: qualitative
     description: "Volume of blood remaining in ventricle after systole."
@@ -42,6 +47,7 @@ nodes:
   - id: cardio.cycle.end_diastolic_volume
     label: End-Diastolic Volume (EDV)
     domain: cardio
+    subdomain: cycle
     type: variable
     state_type: qualitative
     description: "Volume of blood in ventricle at end of diastole."
@@ -49,6 +55,7 @@ nodes:
   - id: cardio.cycle.atrial_stretch
     label: Atrial Stretch
     domain: cardio
+    subdomain: cycle
     type: process
     state_type: qualitative
     description: "Mechanical stretch of atrial myocardium due to venous return and effective circulating volume."

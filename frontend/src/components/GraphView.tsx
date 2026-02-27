@@ -64,19 +64,19 @@ const getLayoutOptions = (settings: import('@/lib/types').GraphSettings): any =>
             animate: true,
             animationDuration: 1000,
             fit: true,
-            padding: 60,
+            padding: 24,
             nodeDimensionsIncludeLabels: true,
             uniformNodeDimensions: false,
-            nodeRepulsion: 14000,
-            idealEdgeLength: 140,
+            nodeRepulsion: 9000,
+            idealEdgeLength: 90,
             edgeElasticity: 0.35,
             nestingFactor: 0.25,
             gravity: 0.25,
             gravityRange: 120,
             gravityCompound: 1.2,
             numIter: 5000,
-            tilingPaddingVertical: 40,
-            tilingPaddingHorizontal: 40,
+            tilingPaddingVertical: 20,
+            tilingPaddingHorizontal: 20,
         };
     }
 
@@ -101,19 +101,26 @@ const DOMAIN_COLORS: Record<string, string> = {
 };
 
 const buildGraphElements = (nodes: GNode[], edges: GEdge[], groupByDomain: boolean) => {
+    const formatSubdomainLabel = (value: string) =>
+        value.replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
+    const subdomainParentId = (domain: string, subdomain: string) => `parent-${domain}-${subdomain}`;
+
     const nodeElements = nodes.map(node => {
-        const parent = groupByDomain ? `parent-${node.domain}` : undefined;
+        const parent = groupByDomain
+            ? (node.subdomain ? subdomainParentId(node.domain, node.subdomain) : `parent-${node.domain}`)
+            : undefined;
         return {
             data: {
                 id: node.id,
                 label: node.label,
                 domain: node.domain,
+                subdomain: node.subdomain,
                 parent,
             }
         };
     });
 
-    const parentElements = groupByDomain
+    const domainParentElements = groupByDomain
         ? Array.from(new Set(nodes.map(n => n.domain))).map(domain => ({
             data: {
                 id: `parent-${domain}`,
@@ -125,6 +132,29 @@ const buildGraphElements = (nodes: GNode[], edges: GEdge[], groupByDomain: boole
         }))
         : [];
 
+    const subdomainParentElements = groupByDomain
+        ? Array.from(
+            new Set(
+                nodes
+                    .filter((n) => !!n.subdomain)
+                    .map((n) => `${n.domain}::${n.subdomain}`)
+            )
+        ).map((key) => {
+            const [domain, subdomain] = key.split("::");
+            return {
+                data: {
+                    id: subdomainParentId(domain, subdomain),
+                    label: formatSubdomainLabel(subdomain),
+                    isParent: true,
+                    parentType: 'subdomain',
+                    domain,
+                    subdomain,
+                    parent: `parent-${domain}`,
+                }
+            };
+        })
+        : [];
+
     const edgeElements = edges.map((edge, i) => ({
         data: {
             id: `e${i}`,
@@ -134,7 +164,7 @@ const buildGraphElements = (nodes: GNode[], edges: GEdge[], groupByDomain: boole
         }
     }));
 
-    return [...nodeElements, ...parentElements, ...edgeElements];
+    return [...nodeElements, ...domainParentElements, ...subdomainParentElements, ...edgeElements];
 };
 
 const runLayout = (
@@ -143,8 +173,16 @@ const runLayout = (
 ) => {
     const layout = cy.layout(getLayoutOptions(settings));
     layout.one('layoutstop', () => {
-        arrangeDomainsAroundNeuro(cy, settings.groupByDomain);
-        cy.fit(undefined, 40);
+        arrangeDomainsAroundNeuro(cy, settings.groupByDomain, settings);
+        cy.fit(undefined, 16);
+        if (settings.groupByDomain) {
+            const fittedZoom = cy.zoom();
+            const boostedZoom = Math.min(1, fittedZoom * 1.65);
+            if (boostedZoom > fittedZoom) {
+                cy.zoom(boostedZoom);
+                cy.center();
+            }
+        }
     });
     layout.run();
 };
@@ -170,6 +208,33 @@ const translateDomain = (cy: cytoscape.Core, domain: string, dx: number, dy: num
     });
 };
 
+const subdomainNodeCollection = (cy: cytoscape.Core, domain: string, subdomain: string) =>
+    cy.nodes(`[domain = "${domain}"][subdomain = "${subdomain}"]`).filter((n) => !n.data('isParent'));
+
+const subdomainBounds = (cy: cytoscape.Core, domain: string, subdomain: string): DomainBounds | null => {
+    const nodes = subdomainNodeCollection(cy, domain, subdomain);
+    if (nodes.length === 0) return null;
+    const bb = nodes.boundingBox({ includeLabels: true, includeOverlays: false });
+    return {
+        x1: bb.x1,
+        x2: bb.x2,
+        y1: bb.y1,
+        y2: bb.y2,
+        cx: (bb.x1 + bb.x2) / 2,
+        cy: (bb.y1 + bb.y2) / 2,
+        width: Math.max(1, bb.w),
+        height: Math.max(1, bb.h),
+    };
+};
+
+const translateSubdomain = (cy: cytoscape.Core, domain: string, subdomain: string, dx: number, dy: number) => {
+    const nodes = subdomainNodeCollection(cy, domain, subdomain);
+    nodes.forEach((node) => {
+        const pos = node.position();
+        node.position({ x: pos.x + dx, y: pos.y + dy });
+    });
+};
+
 interface DomainBounds {
     x1: number;
     x2: number;
@@ -184,7 +249,7 @@ interface DomainBounds {
 const domainBounds = (cy: cytoscape.Core, domain: string): DomainBounds | null => {
     const domainNodes = cy.nodes(`[domain = "${domain}"]`).filter((n) => !n.data('isParent'));
     if (domainNodes.length === 0) return null;
-    const bb = domainNodes.boundingBox();
+    const bb = domainNodes.boundingBox({ includeLabels: true, includeOverlays: false });
     return {
         x1: bb.x1,
         x2: bb.x2,
@@ -235,8 +300,230 @@ const resolveDomainOverlaps = (cy: cytoscape.Core, domains: string[], fixedDomai
     }
 };
 
-const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) => {
+interface BentoSlot {
+    col: number;
+    row: number;
+    colSpan: number;
+    rowSpan: number;
+}
+
+const compactNodesInSubdomain = (
+    cy: cytoscape.Core,
+    domain: string,
+    subdomain: string,
+    settings: import('@/lib/types').GraphSettings,
+) => {
+    const nodes = subdomainNodeCollection(cy, domain, subdomain).sort((a, b) =>
+        String(a.id()).localeCompare(String(b.id()))
+    );
+    if (nodes.length <= 1) return;
+
+    let centerX = 0;
+    let centerY = 0;
+    nodes.forEach((node) => {
+        const pos = node.position();
+        centerX += pos.x;
+        centerY += pos.y;
+    });
+    centerX /= nodes.length;
+    centerY /= nodes.length;
+
+    const cols = nodes.length <= 3 ? nodes.length : Math.ceil(Math.sqrt(nodes.length));
+    const rows = Math.ceil(nodes.length / cols);
+    const largestLabelLen = nodes.reduce((max, n) => {
+        const label = String(n.data('label') || '');
+        return Math.max(max, label.length);
+    }, 0);
+    const labelFactor = Math.max(0, largestLabelLen - 14);
+    const fontFactor = Math.max(12, settings.fontSize);
+    const baseNodeFactor = Math.max(40, settings.nodeSize * 4.2);
+    const gapX = Math.max(baseNodeFactor, Math.min(210, 44 + fontFactor * 2 + labelFactor * 1.9));
+    const gapY = Math.max(52, Math.min(190, 34 + fontFactor * 1.8 + labelFactor * 1.5));
+    const startX = centerX - ((cols - 1) * gapX) / 2;
+    const startY = centerY - ((rows - 1) * gapY) / 2;
+
+    nodes.forEach((node, index) => {
+        const row = Math.floor(index / cols);
+        const colInRow = index % cols;
+        const col = row % 2 === 0 ? colInRow : (cols - 1 - colInRow);
+        node.position({
+            x: startX + col * gapX,
+            y: startY + row * gapY,
+        });
+    });
+};
+
+const bentoSlotsForCount = (count: number): BentoSlot[] => {
+    if (count <= 1) return [{ col: 0, row: 0, colSpan: 1, rowSpan: 1 }];
+    if (count === 2) {
+        return [
+            { col: 0, row: 0, colSpan: 2, rowSpan: 1 },
+            { col: 0, row: 1, colSpan: 2, rowSpan: 1 },
+        ];
+    }
+    if (count === 3) {
+        return [
+            { col: 0, row: 0, colSpan: 1, rowSpan: 2 },
+            { col: 1, row: 0, colSpan: 1, rowSpan: 1 },
+            { col: 1, row: 1, colSpan: 1, rowSpan: 1 },
+        ];
+    }
+
+    const base: BentoSlot[] = [
+        { col: 1, row: 1, colSpan: 2, rowSpan: 1 }, // center wide hero
+        { col: 0, row: 0, colSpan: 1, rowSpan: 2 }, // left tall
+        { col: 3, row: 0, colSpan: 1, rowSpan: 2 }, // right tall
+        { col: 1, row: 0, colSpan: 1, rowSpan: 1 }, // top small
+        { col: 2, row: 0, colSpan: 1, rowSpan: 1 }, // top small
+        { col: 0, row: 2, colSpan: 1, rowSpan: 1 }, // bottom small
+        { col: 1, row: 2, colSpan: 1, rowSpan: 1 }, // bottom small
+        { col: 2, row: 2, colSpan: 1, rowSpan: 1 }, // bottom small
+        { col: 3, row: 2, colSpan: 1, rowSpan: 1 }, // bottom small
+        { col: 3, row: 1, colSpan: 1, rowSpan: 1 }, // right middle
+    ];
+
+    if (count <= base.length) {
+        return base.slice(0, count);
+    }
+
+    const extended = [...base];
+    let row = 3;
+    while (extended.length < count) {
+        for (let col = 0; col < 4 && extended.length < count; col++) {
+            extended.push({ col, row, colSpan: 1, rowSpan: 1 });
+        }
+        row += 1;
+    }
+    return extended;
+};
+
+const resolveSubdomainOverlaps = (
+    cy: cytoscape.Core,
+    domain: string,
+    subdomains: string[],
+    minGap: number,
+) => {
+    for (let iter = 0; iter < 20; iter++) {
+        let moved = false;
+        for (let i = 0; i < subdomains.length; i++) {
+            for (let j = i + 1; j < subdomains.length; j++) {
+                const a = subdomains[i];
+                const b = subdomains[j];
+                const aBounds = subdomainBounds(cy, domain, a);
+                const bBounds = subdomainBounds(cy, domain, b);
+                if (!aBounds || !bBounds) continue;
+
+                const overlapX = Math.min(aBounds.x2, bBounds.x2) - Math.max(aBounds.x1, bBounds.x1);
+                const overlapY = Math.min(aBounds.y2, bBounds.y2) - Math.max(aBounds.y1, bBounds.y1);
+                if (overlapX <= -minGap || overlapY <= -minGap) continue;
+
+                const neededX = overlapX + minGap;
+                const neededY = overlapY + minGap;
+                const pushAlongX = neededX < neededY;
+                const dirX = aBounds.cx <= bBounds.cx ? 1 : -1;
+                const dirY = aBounds.cy <= bBounds.cy ? 1 : -1;
+
+                const dx = pushAlongX ? dirX * neededX * 0.5 : 0;
+                const dy = pushAlongX ? 0 : dirY * neededY * 0.5;
+                translateSubdomain(cy, domain, a, -dx, -dy);
+                translateSubdomain(cy, domain, b, dx, dy);
+                moved = true;
+            }
+        }
+        if (!moved) break;
+    }
+};
+
+const arrangeSubdomainsAsBento = (
+    cy: cytoscape.Core,
+    settings: import('@/lib/types').GraphSettings,
+) => {
+    const domains = Array.from(new Set(
+        cy.nodes(':childless')
+            .map((n) => String(n.data('domain') || ''))
+            .filter(Boolean)
+    ));
+
+    domains.forEach((domain) => {
+        const subdomains = Array.from(new Set(
+            cy.nodes(`[domain = "${domain}"]`)
+                .filter((n) => !n.data('isParent'))
+                .map((n) => String(n.data('subdomain') || ''))
+                .filter(Boolean)
+        )).sort();
+
+        if (subdomains.length < 2) return;
+
+        // Compact each subdomain's nodes first so tiles stay dense and readable.
+        subdomains.forEach((subdomain) => compactNodesInSubdomain(cy, domain, subdomain, settings));
+
+        const center = domainCentroid(cy, domain);
+        if (!center) return;
+
+        const boundsBySub = new Map<string, DomainBounds>();
+        let maxWidth = 0;
+        let maxHeight = 0;
+        const nodeCountBySub = new Map<string, number>();
+
+        subdomains.forEach((subdomain) => {
+            const bb = subdomainBounds(cy, domain, subdomain);
+            if (!bb) return;
+            boundsBySub.set(subdomain, bb);
+            maxWidth = Math.max(maxWidth, bb.width);
+            maxHeight = Math.max(maxHeight, bb.height);
+            nodeCountBySub.set(subdomain, subdomainNodeCollection(cy, domain, subdomain).length);
+        });
+
+        if (boundsBySub.size < 2) return;
+
+        const rankedSubdomains = [...subdomains].sort((a, b) => {
+            const na = nodeCountBySub.get(a) || 0;
+            const nb = nodeCountBySub.get(b) || 0;
+            if (nb !== na) return nb - na;
+            return a.localeCompare(b);
+        });
+
+        const slots = bentoSlotsForCount(rankedSubdomains.length);
+        const usedCols = Math.max(...slots.map((slot) => slot.col + slot.colSpan));
+        const usedRows = Math.max(...slots.map((slot) => slot.row + slot.rowSpan));
+
+        const unitW = Math.max(172, Math.round(maxWidth * 1.12));
+        const unitH = Math.max(146, Math.round(maxHeight * 1.1));
+        const gapX = 26;
+        const gapY = 22;
+        const totalW = usedCols * unitW + (usedCols - 1) * gapX;
+        const totalH = usedRows * unitH + (usedRows - 1) * gapY;
+        const startX = center.x - totalW / 2;
+        const startY = center.y - totalH / 2;
+
+        rankedSubdomains.forEach((subdomain, idx) => {
+            const bb = boundsBySub.get(subdomain);
+            if (!bb) return;
+            const slot = slots[idx];
+            const left = startX + slot.col * (unitW + gapX);
+            const top = startY + slot.row * (unitH + gapY);
+            const slotW = slot.colSpan * unitW + (slot.colSpan - 1) * gapX;
+            const slotH = slot.rowSpan * unitH + (slot.rowSpan - 1) * gapY;
+            const targetX = left + slotW / 2;
+            const targetY = top + slotH / 2;
+            translateSubdomain(cy, domain, subdomain, targetX - bb.cx, targetY - bb.cy);
+        });
+
+        resolveSubdomainOverlaps(cy, domain, rankedSubdomains, 18);
+        const recentered = domainCentroid(cy, domain);
+        if (recentered) {
+            translateDomain(cy, domain, center.x - recentered.x, center.y - recentered.y);
+        }
+    });
+};
+
+const arrangeDomainsAroundNeuro = (
+    cy: cytoscape.Core,
+    groupByDomain: boolean,
+    settings: import('@/lib/types').GraphSettings,
+) => {
     if (!groupByDomain) return;
+    arrangeSubdomainsAsBento(cy, settings);
 
     const neuroInitial = domainBounds(cy, 'neuro');
     if (!neuroInitial) return;
@@ -257,7 +544,7 @@ const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) =
     const renal = domainBounds(cy, 'renal');
     const acidbase = domainBounds(cy, 'acidbase');
     const cardio = domainBounds(cy, 'cardio');
-    const gap = 240;
+    const gap = 90;
 
     const targetCenters: Record<string, { x: number; y: number }> = {
         pulm: {
@@ -284,7 +571,7 @@ const arrangeDomainsAroundNeuro = (cy: cytoscape.Core, groupByDomain: boolean) =
         translateDomain(cy, domain, target.x - centroid.x, target.y - centroid.y);
     });
 
-    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 120);
+    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 36);
 };
 
 const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
@@ -293,6 +580,11 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
     const pulseIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const pathAnimationRef = useRef<NodeJS.Timeout | null>(null);
     const clampedFontSize = Math.max(16, Math.min(42, settings.fontSize));
+    const nodeTextMaxWidth = Math.max(120, Math.min(280, Math.round(clampedFontSize * 6.5)));
+    const domainLabelSize = Math.max(20, Math.min(36, Math.round(clampedFontSize * 1.35)));
+    const subdomainLabelSize = Math.max(16, Math.min(28, Math.round(clampedFontSize * 1.1)));
+    const domainPadding = Math.max(14, Math.round(settings.nodeSize * 1.6));
+    const subdomainPadding = Math.max(6, Math.round(settings.nodeSize * 0.7));
 
     const blendHex = (a: string, b: string, t: number): string => {
         const norm = Math.max(0, Math.min(1, t));
@@ -399,9 +691,10 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                             'text-halign': 'center',
                             'font-size': `${clampedFontSize}px`,
                             'font-family': 'Inter, system-ui, sans-serif',
-                            'text-margin-y': 8,
+                            'text-margin-y': 10,
                             'text-wrap': 'wrap',
-                            'text-max-width': '100px',
+                            'text-max-width': `${nodeTextMaxWidth}px`,
+                            'line-height': 1.12,
                             'width': settings.nodeSize,
                             'height': settings.nodeSize,
                             'border-width': 0,
@@ -461,6 +754,34 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                                 return DOMAIN_COLORS[domain] || '#475569';
                             },
                             'padding': '30px',
+                        }
+                    },
+                    {
+                        selector: 'node[parentType = "domain"]',
+                        style: {
+                            'border-width': 1.5,
+                            'border-style': 'dashed',
+                            'font-size': `${domainLabelSize}px`,
+                            'font-weight': 'bold',
+                            'text-margin-y': -12,
+                            'text-wrap': 'none',
+                            'min-zoomed-font-size': 10,
+                            'padding': `${domainPadding}px`,
+                        }
+                    },
+                    {
+                        selector: 'node[parentType = "subdomain"]',
+                        style: {
+                            'background-opacity': 0.08,
+                            'border-width': 1,
+                            'border-style': 'solid',
+                            'font-size': `${subdomainLabelSize}px`,
+                            'font-weight': 700,
+                            'color': '#64748b',
+                            'text-margin-y': -8,
+                            'text-wrap': 'none',
+                            'min-zoomed-font-size': 9,
+                            'padding': `${subdomainPadding}px`,
                         }
                     },
                     {
@@ -658,6 +979,9 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
                 'width': settings.nodeSize,
                 'height': settings.nodeSize,
                 'font-size': `${clampedFontSize}px`,
+                'text-max-width': `${nodeTextMaxWidth}px`,
+                'text-margin-y': 10,
+                'line-height': 1.12,
             })
             .selector('edge')
             .style({
@@ -666,7 +990,7 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
             })
             .update();
 
-    }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings, clampedFontSize, highlightedPath]);
+    }, [nodes, edges, affectedNodes, onNodeClick, dimUnaffected, settings, clampedFontSize, nodeTextMaxWidth, highlightedPath]);
 
     useEffect(() => {
         return () => {

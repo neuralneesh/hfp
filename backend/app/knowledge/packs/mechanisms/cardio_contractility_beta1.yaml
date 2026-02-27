@@ -3,6 +3,7 @@ nodes:
   - id: cardio.mechanism.beta1_receptor
     label: β1-Adrenergic Receptor
     domain: cardio
+    subdomain: mechanism
     type: variable
     node_class: mechanism
     layer: 3
@@ -11,6 +12,7 @@ nodes:
   - id: cardio.mechanism.gs_protein
     label: Myocardial Gs Activation
     domain: cardio
+    subdomain: mechanism
     type: variable
     node_class: mechanism
     layer: 3
@@ -19,6 +21,7 @@ nodes:
   - id: cardio.mechanism.camp
     label: Myocardial cAMP
     domain: cardio
+    subdomain: mechanism
     type: variable
     node_class: mechanism
     layer: 3
@@ -27,6 +30,7 @@ nodes:
   - id: cardio.mechanism.pka
     label: PKA Activity
     domain: cardio
+    subdomain: mechanism
     type: variable
     node_class: mechanism
     layer: 3
@@ -35,6 +39,7 @@ nodes:
   - id: cardio.mechanism.ca_influx
     label: Ca2+ Influx (Trigger)
     domain: cardio
+    subdomain: mechanism
     type: variable
     node_class: mechanism
     layer: 3

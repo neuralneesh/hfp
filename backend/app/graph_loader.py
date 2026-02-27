@@ -35,6 +35,8 @@ class GraphLoader:
 
             # Load nodes
             for node_data in data.get('nodes', []):
+                if not node_data.get('subdomain'):
+                    node_data['subdomain'] = self._infer_subdomain(node_data)
                 if 'time_constant' not in node_data:
                     node_data['time_constant'] = self._infer_time_constant(node_data)
                 node = Node(**node_data)
@@ -87,3 +89,12 @@ class GraphLoader:
             return "subacute"
         # Default qualitative physiologic variables to subacute.
         return "subacute"
+
+    def _infer_subdomain(self, node_data: Dict) -> Optional[str]:
+        node_id = str(node_data.get("id", "")).strip()
+        if not node_id:
+            return None
+        parts = node_id.split(".")
+        if len(parts) < 3:
+            return None
+        return parts[1]

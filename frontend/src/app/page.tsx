@@ -222,6 +222,11 @@ export default function Home() {
     );
   };
 
+  const handleNodeClick = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    setIsRightSidebarOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gap-4">
@@ -242,7 +247,7 @@ export default function Home() {
           setSearchQuery={setSearchQuery}
           pinnedNodes={pinnedNodes}
           togglePin={togglePin}
-          onNodeClick={setSelectedNodeId}
+          onNodeClick={handleNodeClick}
           domainCounts={domainCounts}
         />
       </aside>
@@ -276,7 +281,7 @@ export default function Home() {
             perturbations={perturbations}
             selectedNodeId={selectedNodeId}
             highlightedPath={highlightedPath}
-            onNodeClick={setSelectedNodeId}
+            onNodeClick={handleNodeClick}
             dimUnaffected={shouldDimUnaffected}
             settings={graphSettings}
           />
