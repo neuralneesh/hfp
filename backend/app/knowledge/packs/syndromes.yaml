@@ -13,6 +13,17 @@ syndromes:
       - cardio.hemodynamics.map
       - neuro.ans.sympathetic_tone
 
+  - id: alkalemia_vasodilation_baroreceptor_loop
+    label: Alkalemia-induced Vasodilation followed by Baroreceptor Reflex
+    sequence:
+      - acidbase.blood.ph
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.heart_rate
+      - cardio.hemodynamics.cardiac_output
+      - cardio.hemodynamics.map
+      - neuro.ans.sympathetic_tone
+      - cardio.hemodynamics.heart_rate
+
   - id: hypoxic_pulmonary_vasoconstriction
     label: Hypoxic Pulmonary Vasoconstriction
     sequence:

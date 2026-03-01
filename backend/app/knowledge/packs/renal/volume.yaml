@@ -15,18 +15,23 @@ edges:
   - source: renal.tubule.na_reabsorption
     target: renal.volume.ecf_volume
     rel: increases
-    weight: 0.9
-    delay: hours
+    weight: 0.45
     context:
       ckd: false
     description: "Tubular sodium handling changes ECF volume over hours; CKD impairs this translation."
+    temporal_profile:
+      - at: hours
   - source: renal.volume.ecf_volume
     target: renal.volume.preload
     rel: increases
     weight: 1.0
-    delay: hours
+    description: "Once effective circulating volume has changed, preload follows on the same relative timescale."
+    temporal_profile:
+      - at: immediate
   - source: renal.volume.preload
     target: cardio.hemodynamics.stroke_volume
     rel: increases
-    weight: 0.9
+    weight: 1.0
     description: "Frank-Starling Law: increased preload increases SV"
+    temporal_profile:
+      - at: immediate

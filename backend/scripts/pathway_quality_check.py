@@ -81,6 +81,21 @@ REL_POLARITY: Dict[str, str] = {
 }
 
 
+def _resolved_raw_phases(edge: Dict[str, Any]) -> List[Dict[str, Any]]:
+    temporal_profile = edge.get("temporal_profile") or []
+    if temporal_profile:
+        return temporal_profile
+    return [{"at": edge.get("delay", "immediate"), "rel": edge.get("rel")}]
+
+
+def _phase_at(phase: Dict[str, Any], edge: Dict[str, Any]) -> str:
+    return str(phase.get("at", edge.get("delay", "immediate")))
+
+
+def _phase_rel(phase: Dict[str, Any], edge: Dict[str, Any]) -> str:
+    return str(phase.get("rel", edge.get("rel", "")))
+
+
 def _load_specs(path: str) -> List[ScenarioSpec]:
     with open(path, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
@@ -168,7 +183,11 @@ def _edge_sign(rel: str) -> str:
 
 
 def _has_slow_delay(edge: Dict[str, Any]) -> bool:
-    return edge.get("delay", "immediate") in {"hours", "days"}
+    return any(_phase_at(phase, edge) in {"hours", "days"} for phase in _resolved_raw_phases(edge))
+
+
+def _has_any_immediate_phase(edge: Dict[str, Any]) -> bool:
+    return any(_phase_at(phase, edge) == "immediate" for phase in _resolved_raw_phases(edge))
 
 
 def _is_expected_slow_edge(edge: Dict[str, Any]) -> bool:
@@ -218,6 +237,7 @@ def _lint_graph_structure(packs_dir: str) -> List[GraphLintIssue]:
             source = edge.get("source")
             target = edge.get("target")
             rel = edge.get("rel")
+            phases = _resolved_raw_phases(edge)
             if not source or not target:
                 issues.append(GraphLintIssue("schema", f"{path}: edge missing source/target: {edge}"))
                 continue
@@ -227,10 +247,45 @@ def _lint_graph_structure(packs_dir: str) -> List[GraphLintIssue]:
                 issues.append(GraphLintIssue("reference", f"{path}: edge target not found '{target}'"))
             if rel not in allowed_relations:
                 issues.append(GraphLintIssue("relation", f"{path}: unsupported rel '{rel}' on {source} -> {target}"))
-            else:
-                referenced_relations.add(rel)
-                if rel not in REL_POLARITY:
-                    issues.append(GraphLintIssue("relation", f"{path}: rel '{rel}' missing polarity mapping"))
+            phase_times: Set[str] = set()
+            for phase in phases:
+                phase_at = _phase_at(phase, edge)
+                if phase_at in phase_times:
+                    issues.append(
+                        GraphLintIssue(
+                            "temporal",
+                            f"{path}: temporal_profile repeats at='{phase_at}' on {source} -> {target}",
+                        )
+                    )
+                phase_times.add(phase_at)
+
+                phase_rel = _phase_rel(phase, edge)
+                if phase_rel not in allowed_relations:
+                    issues.append(
+                        GraphLintIssue(
+                            "relation",
+                            f"{path}: unsupported phase rel '{phase_rel}' on {source} -> {target}",
+                        )
+                    )
+                else:
+                    referenced_relations.add(phase_rel)
+                    if phase_rel not in REL_POLARITY:
+                        issues.append(
+                            GraphLintIssue(
+                                "relation",
+                                f"{path}: rel '{phase_rel}' missing polarity mapping",
+                            )
+                        )
+
+                phase_threshold = phase.get("activation_threshold", edge.get("activation_threshold"))
+                phase_direction = phase.get("activation_direction", edge.get("activation_direction", "any"))
+                if phase_direction != "any" and phase_threshold is None:
+                    issues.append(
+                        GraphLintIssue(
+                            "temporal",
+                            f"{path}: temporal gating without threshold on {source} -> {target} at={phase_at}",
+                        )
+                    )
             if _is_expected_slow_edge(edge) and not _has_slow_delay(edge):
                 issues.append(
                     GraphLintIssue(
@@ -238,9 +293,12 @@ def _lint_graph_structure(packs_dir: str) -> List[GraphLintIssue]:
                         f"{path}: expected slower delay for {source} -> {target}, got delay={edge.get('delay', 'immediate')}",
                     )
                 )
-            if edge.get("delay", "immediate") == "immediate":
+            if _has_any_immediate_phase(edge):
                 pair = (source, target)
-                immediate_edge_lookup.setdefault(pair, []).append((rel, path))
+                for phase in phases:
+                    if _phase_at(phase, edge) != "immediate":
+                        continue
+                    immediate_edge_lookup.setdefault(pair, []).append((_phase_rel(phase, edge), path))
 
         for node in data.get("nodes", []) or []:
             node_id = node.get("id", "<missing>")
@@ -293,6 +351,28 @@ def _lint_graph_structure(packs_dir: str) -> List[GraphLintIssue]:
                         f"engine polarity mismatch for rel '{rel}': expected negative, got up->{up_out}, down->{down_out}",
                     )
                 )
+
+    try:
+        loader = GraphLoader(packs_dir)
+        nodes, edges, _ = loader.load_all()
+        engine = ReasoningEngine(nodes, edges, loader.syndromes)
+        dependency_index = engine.build_dependency_index()
+        for cluster in dependency_index["feedback_clusters"]:
+            if cluster["has_delayed_phase"]:
+                continue
+            issues.append(
+                GraphLintIssue(
+                    "temporal",
+                    "feedback cluster has no delayed phase: " + ", ".join(cluster["nodes"]),
+                )
+            )
+    except Exception as exc:
+        issues.append(
+            GraphLintIssue(
+                "schema",
+                f"failed to build temporal dependency index: {exc}",
+            )
+        )
 
     return issues
 

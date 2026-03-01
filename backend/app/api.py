@@ -42,6 +42,9 @@ def _classify_change(
     intervention_dir = intervention.direction if intervention else None
     baseline_conf = baseline.confidence if baseline else 0.0
     intervention_conf = intervention.confidence if intervention else 0.0
+    baseline_effect = baseline.effect_size if baseline else 0.0
+    intervention_effect = intervention.effect_size if intervention else 0.0
+    effect_delta = intervention_effect - baseline_effect
 
     if not baseline and intervention:
         change_type = "new"
@@ -49,9 +52,13 @@ def _classify_change(
         change_type = "resolved"
     elif baseline and intervention and baseline_dir != intervention_dir:
         change_type = "direction_flip"
-    elif intervention_conf > baseline_conf + 0.05:
+    elif effect_delta > 0.05:
         change_type = "strengthened"
-    elif baseline_conf > intervention_conf + 0.05:
+    elif effect_delta < -0.05:
+        change_type = "weakened"
+    elif 0.0 < effect_delta <= 0.05 and intervention_conf > baseline_conf + 0.15:
+        change_type = "strengthened"
+    elif -0.05 <= effect_delta < 0.0 and baseline_conf > intervention_conf + 0.15:
         change_type = "weakened"
     else:
         change_type = "unchanged"
@@ -63,7 +70,10 @@ def _classify_change(
         intervention_direction=intervention_dir,
         baseline_confidence=baseline_conf,
         intervention_confidence=intervention_conf,
+        baseline_effect_size=baseline_effect,
+        intervention_effect_size=intervention_effect,
         confidence_delta=intervention_conf - baseline_conf,
+        effect_size_delta=effect_delta,
         change_type=change_type,
     )
 

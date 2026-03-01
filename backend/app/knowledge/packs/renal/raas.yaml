@@ -1,5 +1,31 @@
 name: renal_raas
 nodes:
+  - id: renal.hemodynamics.gfr
+    label: Glomerular Filtration Rate (GFR)
+    domain: renal
+    type: variable
+    state_type: qualitative
+    aliases: ["GFR"]
+  - id: renal.tgf.adenosine
+    label: Macula Densa Adenosine Signal
+    domain: renal
+    type: variable
+    state_type: qualitative
+  - id: renal.hemodynamics.afferent_blood_flow
+    label: Afferent Arteriolar Blood Flow
+    domain: renal
+    type: variable
+    state_type: qualitative
+  - id: renal.hemodynamics.efferent_blood_flow
+    label: Efferent Arteriolar Blood Flow
+    domain: renal
+    type: variable
+    state_type: qualitative
+  - id: renal.raas.renin_secretion
+    label: Renin Secretion
+    domain: renal
+    type: process
+    state_type: qualitative
   - id: renal.raas.renin
     label: Renin
     domain: renal
@@ -32,6 +58,46 @@ nodes:
     state_type: qualitative
 
 edges:
+  - source: cardio.hemodynamics.map
+    target: renal.hemodynamics.afferent_blood_flow
+    rel: increases
+    weight: 0.8
+    description: "Lower perfusion pressure reduces afferent inflow to the glomerulus."
+  - source: renal.hemodynamics.afferent_blood_flow
+    target: renal.hemodynamics.gfr
+    rel: increases
+    weight: 0.9
+    description: "Higher afferent inflow tends to raise glomerular capillary pressure and GFR."
+  - source: renal.hemodynamics.efferent_blood_flow
+    target: renal.hemodynamics.gfr
+    rel: decreases
+    weight: 0.6
+    description: "Greater efferent outflow lowers glomerular capillary pressure and GFR."
+  - source: renal.hemodynamics.gfr
+    target: renal.tgf.adenosine
+    rel: increases
+    weight: 0.85
+    description: "Higher distal NaCl delivery at the macula densa increases adenosine signaling."
+  - source: renal.tgf.adenosine
+    target: renal.hemodynamics.afferent_blood_flow
+    rel: decreases
+    weight: 0.85
+    description: "Adenosine constricts the afferent arteriole, reducing inflow."
+  - source: renal.hemodynamics.gfr
+    target: renal.raas.renin_secretion
+    rel: decreases
+    weight: 0.6
+    description: "Reduced filtered load at the macula densa increases renin release."
+  - source: renal.tgf.adenosine
+    target: renal.raas.renin_secretion
+    rel: decreases
+    weight: 0.4
+    description: "Adenosine via A1 signaling suppresses renin secretion."
+  - source: renal.raas.renin_secretion
+    target: renal.raas.renin
+    rel: increases
+    weight: 0.95
+    description: "Juxtaglomerular renin secretion raises circulating renin."
   - source: renal.raas.renin
     target: renal.raas.angiotensin_ii
     rel: increases
@@ -51,6 +117,13 @@ edges:
     rel: increases
     weight: 0.9
     description: "AT1 activation causes systemic arteriolar vasoconstriction, raising SVR."
+    temporal_profile:
+      - at: hours
+  - source: renal.raas.at1_receptor
+    target: renal.hemodynamics.efferent_blood_flow
+    rel: decreases
+    weight: 0.7
+    description: "AT1 signaling preferentially constricts efferent arterioles, reducing efferent outflow."
   - source: renal.raas.at1_receptor
     target: renal.tubule.na_reabsorption
     rel: increases
@@ -84,7 +157,7 @@ edges:
       ckd: false
     description: "MR activation in alpha-intercalated cells promotes H+ secretion, but net pH effect is low gain in normal states."
   - source: cardio.hemodynamics.map
-    target: renal.raas.renin
+    target: renal.raas.renin_secretion
     rel: decreases
     weight: 0.7
     description: "Renal baroreceptors detect low perfusion and stimulate renin release"

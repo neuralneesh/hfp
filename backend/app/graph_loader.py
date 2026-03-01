@@ -1,7 +1,7 @@
 import os
 import yaml
 from typing import List, Dict, Optional
-from .models import Node, Edge, DomainPack, Rule, Syndrome
+from .models import Edge, EdgePhase, Node, Rule, Syndrome
 
 class GraphLoader:
     def __init__(self, packs_dir: str):
@@ -28,7 +28,7 @@ class GraphLoader:
         return self.nodes, self.edges, self.rules
 
     def _load_pack(self, pack_path: str):
-        with open(pack_path, 'r') as f:
+        with open(pack_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
             if not data:
                 return
@@ -48,7 +48,7 @@ class GraphLoader:
 
             # Load edges
             for edge_data in data.get('edges', []):
-                edge = Edge(**edge_data)
+                edge = self._normalize_edge(Edge(**edge_data))
                 self.edges.append(edge)
 
             # Load rules
@@ -68,6 +68,19 @@ class GraphLoader:
                 raise ValueError(f"Edge source not found: {edge.source}")
             if edge.target not in self.nodes:
                 raise ValueError(f"Edge target not found: {edge.target}")
+
+    def _normalize_edge(self, edge: Edge) -> Edge:
+        if edge.temporal_profile:
+            edge._legacy_timing = False
+            return edge
+
+        normalized = edge.model_copy(
+            update={
+                "temporal_profile": [EdgePhase(at=edge.delay)],
+            }
+        )
+        normalized._legacy_timing = True
+        return normalized
 
     def get_node_by_id_or_alias(self, identifier: str) -> Optional[Node]:
         if identifier in self.nodes:

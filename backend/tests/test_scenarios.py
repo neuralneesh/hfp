@@ -113,3 +113,50 @@ def test_scenario_dehydration_stub(engine):
     
     assert affected["cardio.hemodynamics.map"].direction == "down"
     assert affected["renal.raas.renin"].direction == "up"
+
+
+def test_scenario_tgf_low_gfr_compensation(engine):
+    # Scenario: down GFR -> down adenosine -> up afferent flow + up renin secretion
+    request = SimulationRequest(
+        perturbations=[Perturbation(node_id="renal.hemodynamics.gfr", op="decrease")],
+        options=SimulationOptions(max_hops=6),
+    )
+    res = engine.simulate(request)
+    affected = {a.node_id: a for a in res.affected_nodes}
+
+    assert affected["renal.tgf.adenosine"].direction == "down"
+    assert affected["renal.hemodynamics.afferent_blood_flow"].direction == "up"
+    assert affected["renal.raas.renin_secretion"].direction == "up"
+    assert affected["renal.raas.renin"].direction == "up"
+
+
+def test_scenario_high_adenosine_reduces_renin_secretion(engine):
+    # Scenario: up adenosine -> down afferent flow and down renin secretion
+    request = SimulationRequest(
+        perturbations=[Perturbation(node_id="renal.tgf.adenosine", op="increase")],
+        options=SimulationOptions(max_hops=4),
+    )
+    res = engine.simulate(request)
+    affected = {a.node_id: a for a in res.affected_nodes}
+
+    assert affected["renal.hemodynamics.afferent_blood_flow"].direction == "down"
+    assert affected["renal.raas.renin_secretion"].direction == "down"
+
+
+def test_scenario_high_gfr_has_delayed_small_co_drop(engine):
+    request = SimulationRequest(
+        perturbations=[Perturbation(node_id="renal.hemodynamics.gfr", op="increase")],
+        options=SimulationOptions(max_hops=10),
+    )
+    res = engine.simulate(request)
+    affected = {a.node_id: a for a in res.affected_nodes}
+    tick_states = engine.latest_node_states
+
+    assert tick_states["renal.tgf.adenosine"][0].direction == "up"
+    assert tick_states["renal.raas.renin_secretion"][0].direction == "down"
+    assert 0 not in tick_states.get("cardio.hemodynamics.cardiac_output", {})
+
+    co_state = tick_states["cardio.hemodynamics.cardiac_output"][2]
+    assert co_state.direction == "down"
+    assert co_state.magnitude == "small"
+    assert affected["cardio.hemodynamics.cardiac_output"].direction == "down"
