@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Sidebar from '@/components/Sidebar';
 import GraphView from '@/components/GraphView';
 import ControlPanel from '@/components/ControlPanel';
@@ -8,337 +8,192 @@ import RippleSummary from '@/components/RippleSummary';
 import TraceViewer from '@/components/TraceViewer';
 import ComparisonSummary from '@/components/ComparisonSummary';
 import DisplayMenu from '@/components/DisplayMenu';
-import {
-  Node as GNode,
-  Edge as GEdge,
-  AffectedNode,
-  Perturbation,
-  SimulationOptions,
-  Domain,
-  TraceStep,
-  GraphSettings,
-  ComparedNode
-} from '@/lib/types';
-import { getGraph, simulate, compareSimulations } from '@/lib/api';
 import { Loader2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, RefreshCw } from 'lucide-react';
+import { useGraphData } from '@/hooks/useGraphData';
+import { useSimulation } from '@/hooks/useSimulation';
+import { useUIState } from '@/hooks/useUIState';
 
+/**
+ * Root page component.
+ *
+ * This component is intentionally thin: it composes the three custom hooks and
+ * passes their state/actions down to child components. Business logic lives in
+ * the hooks; rendering decisions live here.
+ *
+ * Adding a new feature:
+ *  - New graph-loading behaviour  → useGraphData
+ *  - New simulation action/result → useSimulation
+ *  - New UI panel or filter       → useUIState
+ *  - Cross-hook derived data      → useMemo below
+ */
 export default function Home() {
-  // State
-  const [nodes, setNodes] = useState<GNode[]>([]);
-  const [edges, setEdges] = useState<GEdge[]>([]);
-  const [affectedNodes, setAffectedNodes] = useState<AffectedNode[]>([]);
-  const [traces, setTraces] = useState<Record<string, TraceStep[]>>({});
-  const [comparisonChanges, setComparisonChanges] = useState<ComparedNode[]>([]);
+    const graph = useGraphData();
+    const ui = useUIState();
+    const sim = useSimulation(ui.selectedNodeId);
 
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedDomain, setSelectedDomain] = useState<Domain | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [pinnedNodes, setPinnedNodes] = useState<string[]>([]);
+    // -------------------------------------------------------------------------
+    // Cross-hook derived values
+    // These depend on data from more than one hook, so they live here.
+    // -------------------------------------------------------------------------
 
-  const [perturbations, setPerturbations] = useState<Perturbation[]>([]);
-  const [activeTraceIndex, setActiveTraceIndex] = useState<number | null>(null);
-  const [activeTraceNodeId, setActiveTraceNodeId] = useState<string | null>(null);
-  const [context, setContext] = useState<Record<string, boolean>>({});
-  const [options, setOptions] = useState<SimulationOptions>({
-    max_hops: 8,
-    min_confidence: 0.1,
-    time_window: 'all',
-    dim_unaffected: true,
-  });
-  const [graphSettings, setGraphSettings] = useState<GraphSettings>({
-    nodeSize: 10,
-    fontSize: 12,
-    linkThickness: 1.5,
-    nodeRepulsion: 450000,
-    idealEdgeLength: 50,
-    showArrows: true,
-    groupByDomain: true,
-    textFadeThreshold: 0.9,
-  });
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [isComparing, setIsComparing] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const hasClinicalContext = useMemo(
-    () => Object.values(context).some(Boolean),
-    [context]
-  );
-  const canSimulate = perturbations.length > 0 || hasClinicalContext;
-  const shouldDimUnaffected = options.dim_unaffected && perturbations.length > 0;
-
-  // Fetch initial graph
-  const loadGraph = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await getGraph();
-      setNodes(data.nodes);
-      setEdges(data.edges);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load graph from backend. Make sure the FastAPI server is running.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadGraph();
-  }, [loadGraph]);
-
-  // Simulation handler
-  const runSimulation = async () => {
-    if (!canSimulate) return;
-    try {
-      setIsSimulating(true);
-      const res = await simulate({
-        perturbations,
-        context,
-        options,
-      });
-      setAffectedNodes(res.affected_nodes);
-      setTraces(res.traces);
-    } catch (err) {
-      console.error(err);
-      setError('Simulation failed.');
-    } finally {
-      setIsSimulating(false);
-    }
-  };
-
-  const runComparison = async () => {
-    if (!canSimulate) return;
-    try {
-      setIsComparing(true);
-      const res = await compareSimulations({
-        baseline: {
-          perturbations: [],
-          context,
-          options,
-        },
-        intervention: {
-          perturbations,
-          context,
-          options,
-        },
-      });
-      setComparisonChanges(res.changed_nodes);
-      setAffectedNodes(res.intervention.affected_nodes);
-      setTraces(res.intervention.traces);
-    } catch (err) {
-      console.error(err);
-      setError('Comparison failed.');
-    } finally {
-      setIsComparing(false);
-    }
-  };
-
-  const resetSimulation = () => {
-    setAffectedNodes([]);
-    setTraces({});
-    setPerturbations([]);
-    setComparisonChanges([]);
-  };
-
-  // UI Helpers
-  const selectedNode = useMemo(() =>
-    nodes.find(n => n.id === selectedNodeId) || null
-    , [nodes, selectedNodeId]);
-
-  useEffect(() => {
-    if (!selectedNodeId) {
-      if (activeTraceIndex !== null) setActiveTraceIndex(null);
-      if (activeTraceNodeId !== null) setActiveTraceNodeId(null);
-      return;
-    }
-
-    const nodeTraces = traces[selectedNodeId] || [];
-    if (nodeTraces.length === 0) {
-      if (activeTraceIndex !== null) setActiveTraceIndex(null);
-      if (activeTraceNodeId !== null) setActiveTraceNodeId(null);
-      return;
-    }
-
-    const isSameNode = activeTraceNodeId === selectedNodeId;
-    const hasValidSelection = isSameNode && activeTraceIndex !== null && activeTraceIndex < nodeTraces.length;
-    if (hasValidSelection) return;
-
-    const perturbationNodeIds = new Set(perturbations.map((p) => p.node_id));
-    let preferredIndex = -1;
-    let preferredConfidence = -1;
-    nodeTraces.forEach((trace, index) => {
-      const startsFromPerturbation = trace.path.length > 0 && perturbationNodeIds.has(trace.path[0]);
-      if (!startsFromPerturbation) return;
-      if (trace.confidence > preferredConfidence) {
-        preferredConfidence = trace.confidence;
-        preferredIndex = index;
-      }
-    });
-
-    setActiveTraceNodeId(selectedNodeId);
-    setActiveTraceIndex(preferredIndex >= 0 ? preferredIndex : 0);
-  }, [selectedNodeId, traces, perturbations, activeTraceIndex, activeTraceNodeId]);
-
-  const highlightedPath = useMemo(() => {
-    if (!selectedNodeId || activeTraceNodeId !== selectedNodeId || activeTraceIndex === null) {
-      return [];
-    }
-    const nodeTraces = traces[selectedNodeId] || [];
-    return nodeTraces[activeTraceIndex]?.path || [];
-  }, [selectedNodeId, activeTraceNodeId, activeTraceIndex, traces]);
-
-  const filteredNodes = useMemo(() => {
-    let result = nodes;
-    if (selectedDomain !== 'all') {
-      result = result.filter(n => n.domain === selectedDomain);
-    }
-    // Cross-domain highlighted nodes should stay visible if they are affected
-    const affectedIds = new Set(affectedNodes.map(an => an.node_id));
-    return result.filter(n => selectedDomain === 'all' || n.domain === selectedDomain || affectedIds.has(n.id));
-  }, [nodes, selectedDomain, affectedNodes]);
-
-  const filteredEdges = useMemo(() => {
-    const nodeIds = new Set(filteredNodes.map(n => n.id));
-    return edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
-  }, [edges, filteredNodes]);
-
-  const domainCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    affectedNodes.forEach(an => {
-      const node = nodes.find(n => n.id === an.node_id);
-      if (node) {
-        counts[node.domain] = (counts[node.domain] || 0) + 1;
-      }
-    });
-    return counts;
-  }, [affectedNodes, nodes]);
-
-  const togglePin = (id: string) => {
-    setPinnedNodes(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    const selectedNode = useMemo(
+        () => graph.nodes.find(n => n.id === ui.selectedNodeId) || null,
+        [graph.nodes, ui.selectedNodeId],
     );
-  };
 
-  const handleNodeClick = (nodeId: string) => {
-    setSelectedNodeId(nodeId);
-    setIsRightSidebarOpen(true);
-  };
+    const highlightedPath = useMemo(() => {
+        if (!ui.selectedNodeId || sim.activeTraceNodeId !== ui.selectedNodeId || sim.activeTraceIndex === null) {
+            return [];
+        }
+        return sim.traces[ui.selectedNodeId]?.[sim.activeTraceIndex]?.path || [];
+    }, [ui.selectedNodeId, sim.activeTraceNodeId, sim.activeTraceIndex, sim.traces]);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gap-4">
-        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-        <p className="text-slate-500 font-medium">Building HumanGraph...</p>
-      </div>
-    );
-  }
+    // NOTE: filteredNodes / filteredEdges are computed but not yet wired to
+    // GraphView (GraphView receives the full node/edge set). They are kept here
+    // so domain-level filtering can be activated by changing `nodes={nodes}` to
+    // `nodes={filteredNodes}` in the GraphView prop below.
+    const filteredNodes = useMemo(() => {
+        let result = graph.nodes;
+        if (ui.selectedDomain !== 'all') {
+            result = result.filter(n => n.domain === ui.selectedDomain);
+        }
+        // Cross-domain affected nodes remain visible even when a domain filter is active
+        const affectedIds = new Set(sim.affectedNodes.map(an => an.node_id));
+        return result.filter(n => ui.selectedDomain === 'all' || n.domain === ui.selectedDomain || affectedIds.has(n.id));
+    }, [graph.nodes, ui.selectedDomain, sim.affectedNodes]);
 
-  return (
-    <div className="relative flex h-screen w-full bg-slate-50 overflow-hidden font-sans antialiased text-slate-900">
-      <aside className={`absolute left-0 top-0 bottom-0 z-40 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <Sidebar
-          nodes={nodes}
-          selectedDomain={selectedDomain}
-          setSelectedDomain={setSelectedDomain}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          pinnedNodes={pinnedNodes}
-          togglePin={togglePin}
-          onNodeClick={handleNodeClick}
-          domainCounts={domainCounts}
-        />
-      </aside>
+    const filteredEdges = useMemo(() => {
+        const nodeIds = new Set(filteredNodes.map(n => n.id));
+        return graph.edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
+    }, [graph.edges, filteredNodes]);
 
-      <main className="flex-1 relative flex flex-col overflow-hidden">
-        <div className="flex-1 relative">
-          <button
-            onClick={() => setIsSidebarOpen((v) => !v)}
-            className={`absolute top-4 z-50 h-10 w-10 rounded-lg border bg-white/95 backdrop-blur shadow-md text-slate-700 flex items-center justify-center transition-all ${isSidebarOpen ? 'left-[332px]' : 'left-4'}`}
-            title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-          >
-            {isSidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
-          </button>
-          <DisplayMenu
-            settings={graphSettings}
-            setSettings={setGraphSettings}
-            className={isSidebarOpen ? 'left-[380px]' : 'left-16'}
-          />
-          <button
-            onClick={() => setIsRightSidebarOpen((v) => !v)}
-            className={`absolute top-4 z-50 h-10 w-10 rounded-lg border bg-white/95 backdrop-blur shadow-md text-slate-700 flex items-center justify-center transition-all ${isRightSidebarOpen ? 'right-[332px]' : 'right-4'}`}
-            title={isRightSidebarOpen ? 'Hide controls' : 'Show controls'}
-          >
-            {isRightSidebarOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
-          </button>
+    const domainCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        sim.affectedNodes.forEach(an => {
+            const node = graph.nodes.find(n => n.id === an.node_id);
+            if (node) counts[node.domain] = (counts[node.domain] || 0) + 1;
+        });
+        return counts;
+    }, [sim.affectedNodes, graph.nodes]);
 
-          <GraphView
-            nodes={nodes}
-            edges={edges}
-            affectedNodes={affectedNodes}
-            perturbations={perturbations}
-            selectedNodeId={selectedNodeId}
-            highlightedPath={highlightedPath}
-            onNodeClick={handleNodeClick}
-            dimUnaffected={shouldDimUnaffected}
-            settings={graphSettings}
-          />
+    const shouldDimUnaffected = sim.options.dim_unaffected && sim.perturbations.length > 0;
 
-          {selectedNodeId && traces[selectedNodeId] && (
-            <TraceViewer
-              nodeId={selectedNodeId}
-              nodeLabel={selectedNode?.label || ''}
-              traces={traces[selectedNodeId]}
-              activePathIndex={activeTraceNodeId === selectedNodeId ? activeTraceIndex : null}
-              onPathSelect={(index) => {
-                setActiveTraceNodeId(selectedNodeId);
-                setActiveTraceIndex(index);
-              }}
-            />
-          )}
+    // Surface the first available error from either hook
+    const error = graph.error || sim.error;
 
-          <RippleSummary
-            affectedNodes={affectedNodes}
-            nodes={nodes}
-          />
-          <ComparisonSummary
-            changedNodes={comparisonChanges}
-            nodes={nodes}
-          />
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
 
-          {error && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-100 border border-red-200 text-red-700 px-4 py-2 rounded-md shadow-md flex items-center gap-2 z-50">
-              <span className="text-xs font-medium">{error}</span>
-              <button
-                onClick={loadGraph}
-                className="p-1 hover:bg-red-200 rounded"
-              >
-                <RefreshCw className="w-3 h-3" />
-              </button>
+    if (graph.isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gap-4">
+                <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+                <p className="text-slate-500 font-medium">Building HumanGraph...</p>
             </div>
-          )}
-        </div>
-      </main>
+        );
+    }
 
-      <aside className={`absolute right-0 top-0 bottom-0 z-40 transition-transform duration-300 ${isRightSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <ControlPanel
-          selectedNode={selectedNode}
-          onSimulate={runSimulation}
-          onCompare={runComparison}
-          onReset={resetSimulation}
-          perturbations={perturbations}
-          setPerturbations={setPerturbations}
-          options={options}
-          setOptions={setOptions}
-          context={context}
-          setContext={setContext}
-          isSimulating={isSimulating}
-          isComparing={isComparing}
-          canSimulate={canSimulate}
-        />
-      </aside>
-    </div>
-  );
+    return (
+        <div className="relative flex h-screen w-full bg-slate-50 overflow-hidden font-sans antialiased text-slate-900">
+            {/* Left sidebar — node browser */}
+            <aside className={`absolute left-0 top-0 bottom-0 z-40 transition-transform duration-300 ${ui.isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <Sidebar
+                    nodes={graph.nodes}
+                    selectedDomain={ui.selectedDomain}
+                    setSelectedDomain={ui.setSelectedDomain}
+                    searchQuery={ui.searchQuery}
+                    setSearchQuery={ui.setSearchQuery}
+                    pinnedNodes={ui.pinnedNodes}
+                    togglePin={ui.togglePin}
+                    onNodeClick={ui.handleNodeClick}
+                    domainCounts={domainCounts}
+                />
+            </aside>
+
+            <main className="flex-1 relative flex flex-col overflow-hidden">
+                <div className="flex-1 relative">
+                    {/* Left sidebar toggle */}
+                    <button
+                        onClick={() => ui.setIsSidebarOpen(v => !v)}
+                        className={`absolute top-4 z-50 h-10 w-10 rounded-lg border bg-white/95 backdrop-blur shadow-md text-slate-700 flex items-center justify-center transition-all ${ui.isSidebarOpen ? 'left-[332px]' : 'left-4'}`}
+                        title={ui.isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+                    >
+                        {ui.isSidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+                    </button>
+
+                    <DisplayMenu
+                        settings={ui.graphSettings}
+                        setSettings={ui.setGraphSettings}
+                        className={ui.isSidebarOpen ? 'left-[380px]' : 'left-16'}
+                    />
+
+                    {/* Right sidebar toggle */}
+                    <button
+                        onClick={() => ui.setIsRightSidebarOpen(v => !v)}
+                        className={`absolute top-4 z-50 h-10 w-10 rounded-lg border bg-white/95 backdrop-blur shadow-md text-slate-700 flex items-center justify-center transition-all ${ui.isRightSidebarOpen ? 'right-[332px]' : 'right-4'}`}
+                        title={ui.isRightSidebarOpen ? 'Hide controls' : 'Show controls'}
+                    >
+                        {ui.isRightSidebarOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+                    </button>
+
+                    <GraphView
+                        nodes={graph.nodes}
+                        edges={graph.edges}
+                        affectedNodes={sim.affectedNodes}
+                        perturbations={sim.perturbations}
+                        selectedNodeId={ui.selectedNodeId}
+                        highlightedPath={highlightedPath}
+                        onNodeClick={ui.handleNodeClick}
+                        dimUnaffected={shouldDimUnaffected}
+                        settings={ui.graphSettings}
+                    />
+
+                    {ui.selectedNodeId && sim.traces[ui.selectedNodeId] && (
+                        <TraceViewer
+                            nodeId={ui.selectedNodeId}
+                            nodeLabel={selectedNode?.label || ''}
+                            traces={sim.traces[ui.selectedNodeId]}
+                            activePathIndex={sim.activeTraceNodeId === ui.selectedNodeId ? sim.activeTraceIndex : null}
+                            onPathSelect={(index) => {
+                                sim.setActiveTraceNodeId(ui.selectedNodeId);
+                                sim.setActiveTraceIndex(index);
+                            }}
+                        />
+                    )}
+
+                    <RippleSummary affectedNodes={sim.affectedNodes} nodes={graph.nodes} />
+                    <ComparisonSummary changedNodes={sim.comparisonChanges} nodes={graph.nodes} />
+
+                    {error && (
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-100 border border-red-200 text-red-700 px-4 py-2 rounded-md shadow-md flex items-center gap-2 z-50">
+                            <span className="text-xs font-medium">{error}</span>
+                            <button onClick={graph.loadGraph} className="p-1 hover:bg-red-200 rounded">
+                                <RefreshCw className="w-3 h-3" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </main>
+
+            {/* Right sidebar — simulation controls */}
+            <aside className={`absolute right-0 top-0 bottom-0 z-40 transition-transform duration-300 ${ui.isRightSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                <ControlPanel
+                    selectedNode={selectedNode}
+                    onSimulate={sim.runSimulation}
+                    onCompare={sim.runComparison}
+                    onReset={sim.resetSimulation}
+                    perturbations={sim.perturbations}
+                    setPerturbations={sim.setPerturbations}
+                    options={sim.options}
+                    setOptions={sim.setOptions}
+                    context={sim.context}
+                    setContext={sim.setContext}
+                    isSimulating={sim.isSimulating}
+                    isComparing={sim.isComparing}
+                    canSimulate={sim.canSimulate}
+                />
+            </aside>
+        </div>
+    );
 }

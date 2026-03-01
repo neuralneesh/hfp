@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Node as GNode, Perturbation, SimulationOptions } from '@/lib/types';
+import { CLINICAL_CONTEXTS } from '@/lib/constants';
 import { Play, RotateCcw, Settings, Beaker, MapPin } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
@@ -25,14 +26,6 @@ interface ControlPanelProps {
     canSimulate: boolean;
 }
 
-const CONTEXT_OPTIONS = [
-    { id: 'ace_inhibitor', label: 'ACE Inhibitor' },
-    { id: 'beta_blocker', label: 'Beta Blocker' },
-    { id: 'heart_failure', label: 'Heart Failure' },
-    { id: 'dehydration', label: 'Dehydration' },
-    { id: 'ckd', label: 'Chronic Kidney Disease' },
-    { id: 'copd', label: 'COPD' },
-];
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
     selectedNode,
@@ -144,7 +137,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                         Clinical Context
                     </h3>
                     <div className="grid grid-cols-1 gap-2">
-                        {CONTEXT_OPTIONS.map(opt => (
+                        {CLINICAL_CONTEXTS.map(opt => (
                             <label key={opt.id} className="flex items-center justify-between p-2 rounded border hover:bg-slate-50 cursor-pointer">
                                 <span className="text-xs text-slate-700">{opt.label}</span>
                                 <input

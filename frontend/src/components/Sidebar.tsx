@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Domain, Node as GNode } from '@/lib/types';
+import { DOMAIN_BG_CLASSES } from '@/lib/constants';
 import { Search, Pin, Shield } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
@@ -21,13 +22,6 @@ interface SidebarProps {
     domainCounts: Record<string, number>;
 }
 
-const DOMAIN_COLORS: Record<string, string> = {
-    cardio: 'bg-red-500',
-    renal: 'bg-emerald-500',
-    pulm: 'bg-blue-500',
-    acidbase: 'bg-amber-500',
-    neuro: 'bg-violet-500',
-};
 
 const Sidebar: React.FC<SidebarProps> = ({
     nodes,
@@ -82,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 )}
                             >
                                 <div className="flex items-center gap-2 text-slate-700">
-                                    <div className={cn("w-2 h-2 rounded-full", DOMAIN_COLORS[domain])} />
+                                    <div className={cn("w-2 h-2 rounded-full", DOMAIN_BG_CLASSES[domain])} />
                                     {domain.charAt(0).toUpperCase() + domain.slice(1)}
                                 </div>
                                 {domainCounts[domain] > 0 && (
