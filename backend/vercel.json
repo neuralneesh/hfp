@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "app/knowledge/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/",
+      "destination": "/api/index.py"
+    }
+  ]
+}
