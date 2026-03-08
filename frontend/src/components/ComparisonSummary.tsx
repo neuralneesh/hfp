@@ -71,7 +71,7 @@ const ComparisonSummary: React.FC<ComparisonSummaryProps> = ({ changedNodes, nod
                 </div>
                 <p className="text-[10px] text-slate-500 font-mono truncate">{item.node_id}</p>
                 <p className="text-[10px] text-slate-600">
-                  {item.baseline_direction || "none"} -> {item.intervention_direction || "none"} | delta {Math.round(item.confidence_delta * 100)}%
+                  {item.baseline_direction || "none"} {" -> "} {item.intervention_direction || "none"} {" | delta"} {Math.round(item.confidence_delta * 100)}%
                 </p>
               </div>
             );
