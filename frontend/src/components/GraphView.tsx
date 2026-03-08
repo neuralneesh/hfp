@@ -26,6 +26,36 @@ interface GraphViewProps {
     settings: import('@/lib/types').GraphSettings;
 }
 
+interface LayoutMetrics {
+    clampedFontSize: number;
+    nodeTextMaxWidth: number;
+    domainLabelSize: number;
+    subdomainLabelSize: number;
+    domainPadding: number;
+    subdomainPadding: number;
+    domainHeaderHeight: number;
+    subdomainHeaderHeight: number;
+}
+
+const getLayoutMetrics = (settings: import('@/lib/types').GraphSettings): LayoutMetrics => {
+    const clampedFontSize = Math.max(16, Math.min(42, settings.fontSize));
+    const domainLabelSize = Math.max(20, Math.min(36, Math.round(clampedFontSize * 1.35)));
+    const subdomainLabelSize = Math.max(16, Math.min(28, Math.round(clampedFontSize * 1.1)));
+    const domainPadding = Math.max(14, Math.round(settings.nodeSize * 1.6));
+    const subdomainPadding = Math.max(6, Math.round(settings.nodeSize * 0.7));
+
+    return {
+        clampedFontSize,
+        nodeTextMaxWidth: Math.max(120, Math.min(280, Math.round(clampedFontSize * 6.5))),
+        domainLabelSize,
+        subdomainLabelSize,
+        domainPadding,
+        subdomainPadding,
+        domainHeaderHeight: Math.max(domainPadding + 10, Math.round(domainLabelSize * 1.05)),
+        subdomainHeaderHeight: Math.max(subdomainPadding + 8, Math.round(subdomainLabelSize * 0.95)),
+    };
+};
+
 // fcose options for an expansive, Obsidian-like "constellation" look
 const FCOSE_LAYOUT_OPTIONS = {
     name: 'fcose',
@@ -211,19 +241,27 @@ const translateDomain = (cy: cytoscape.Core, domain: string, dx: number, dy: num
 const subdomainNodeCollection = (cy: cytoscape.Core, domain: string, subdomain: string) =>
     cy.nodes(`[domain = "${domain}"][subdomain = "${subdomain}"]`).filter((n) => !n.data('isParent'));
 
-const subdomainBounds = (cy: cytoscape.Core, domain: string, subdomain: string): DomainBounds | null => {
+const subdomainBounds = (
+    cy: cytoscape.Core,
+    domain: string,
+    subdomain: string,
+    metrics?: Pick<LayoutMetrics, 'subdomainPadding' | 'subdomainHeaderHeight'>,
+): DomainBounds | null => {
     const nodes = subdomainNodeCollection(cy, domain, subdomain);
     if (nodes.length === 0) return null;
     const bb = nodes.boundingBox({ includeLabels: true, includeOverlays: false });
+    const sidePadding = metrics?.subdomainPadding ?? 0;
+    const bottomPadding = metrics?.subdomainPadding ?? 0;
+    const topPadding = metrics ? metrics.subdomainPadding + metrics.subdomainHeaderHeight : 0;
     return {
-        x1: bb.x1,
-        x2: bb.x2,
-        y1: bb.y1,
-        y2: bb.y2,
-        cx: (bb.x1 + bb.x2) / 2,
-        cy: (bb.y1 + bb.y2) / 2,
-        width: Math.max(1, bb.w),
-        height: Math.max(1, bb.h),
+        x1: bb.x1 - sidePadding,
+        x2: bb.x2 + sidePadding,
+        y1: bb.y1 - topPadding,
+        y2: bb.y2 + bottomPadding,
+        cx: ((bb.x1 - sidePadding) + (bb.x2 + sidePadding)) / 2,
+        cy: ((bb.y1 - topPadding) + (bb.y2 + bottomPadding)) / 2,
+        width: Math.max(1, bb.w + sidePadding * 2),
+        height: Math.max(1, bb.h + topPadding + bottomPadding),
     };
 };
 
@@ -246,31 +284,44 @@ interface DomainBounds {
     height: number;
 }
 
-const domainBounds = (cy: cytoscape.Core, domain: string): DomainBounds | null => {
+const domainBounds = (
+    cy: cytoscape.Core,
+    domain: string,
+    metrics?: Pick<LayoutMetrics, 'domainPadding' | 'domainHeaderHeight'>,
+): DomainBounds | null => {
     const domainNodes = cy.nodes(`[domain = "${domain}"]`).filter((n) => !n.data('isParent'));
     if (domainNodes.length === 0) return null;
     const bb = domainNodes.boundingBox({ includeLabels: true, includeOverlays: false });
+    const sidePadding = metrics?.domainPadding ?? 0;
+    const bottomPadding = metrics?.domainPadding ?? 0;
+    const topPadding = metrics ? metrics.domainPadding + metrics.domainHeaderHeight : 0;
     return {
-        x1: bb.x1,
-        x2: bb.x2,
-        y1: bb.y1,
-        y2: bb.y2,
-        cx: (bb.x1 + bb.x2) / 2,
-        cy: (bb.y1 + bb.y2) / 2,
-        width: Math.max(1, bb.w),
-        height: Math.max(1, bb.h),
+        x1: bb.x1 - sidePadding,
+        x2: bb.x2 + sidePadding,
+        y1: bb.y1 - topPadding,
+        y2: bb.y2 + bottomPadding,
+        cx: ((bb.x1 - sidePadding) + (bb.x2 + sidePadding)) / 2,
+        cy: ((bb.y1 - topPadding) + (bb.y2 + bottomPadding)) / 2,
+        width: Math.max(1, bb.w + sidePadding * 2),
+        height: Math.max(1, bb.h + topPadding + bottomPadding),
     };
 };
 
-const resolveDomainOverlaps = (cy: cytoscape.Core, domains: string[], fixedDomain: string, minGap: number) => {
+const resolveDomainOverlaps = (
+    cy: cytoscape.Core,
+    domains: string[],
+    fixedDomain: string,
+    minGap: number,
+    metrics: Pick<LayoutMetrics, 'domainPadding' | 'domainHeaderHeight'>,
+) => {
     for (let iter = 0; iter < 12; iter++) {
         let moved = false;
         for (let i = 0; i < domains.length; i++) {
             for (let j = i + 1; j < domains.length; j++) {
                 const a = domains[i];
                 const b = domains[j];
-                const aBounds = domainBounds(cy, a);
-                const bBounds = domainBounds(cy, b);
+                const aBounds = domainBounds(cy, a, metrics);
+                const bBounds = domainBounds(cy, b, metrics);
                 if (!aBounds || !bBounds) continue;
 
                 const overlapX = Math.min(aBounds.x2, bBounds.x2) - Math.max(aBounds.x1, bBounds.x1);
@@ -402,6 +453,7 @@ const resolveSubdomainOverlaps = (
     domain: string,
     subdomains: string[],
     minGap: number,
+    metrics: Pick<LayoutMetrics, 'subdomainPadding' | 'subdomainHeaderHeight'>,
 ) => {
     for (let iter = 0; iter < 20; iter++) {
         let moved = false;
@@ -409,8 +461,8 @@ const resolveSubdomainOverlaps = (
             for (let j = i + 1; j < subdomains.length; j++) {
                 const a = subdomains[i];
                 const b = subdomains[j];
-                const aBounds = subdomainBounds(cy, domain, a);
-                const bBounds = subdomainBounds(cy, domain, b);
+                const aBounds = subdomainBounds(cy, domain, a, metrics);
+                const bBounds = subdomainBounds(cy, domain, b, metrics);
                 if (!aBounds || !bBounds) continue;
 
                 const overlapX = Math.min(aBounds.x2, bBounds.x2) - Math.max(aBounds.x1, bBounds.x1);
@@ -438,6 +490,7 @@ const arrangeSubdomainsAsBento = (
     cy: cytoscape.Core,
     settings: import('@/lib/types').GraphSettings,
 ) => {
+    const metrics = getLayoutMetrics(settings);
     const domains = Array.from(new Set(
         cy.nodes(':childless')
             .map((n) => String(n.data('domain') || ''))
@@ -452,10 +505,9 @@ const arrangeSubdomainsAsBento = (
                 .filter(Boolean)
         )).sort();
 
-        if (subdomains.length < 2) return;
-
         // Compact each subdomain's nodes first so tiles stay dense and readable.
         subdomains.forEach((subdomain) => compactNodesInSubdomain(cy, domain, subdomain, settings));
+        if (subdomains.length < 2) return;
 
         const center = domainCentroid(cy, domain);
         if (!center) return;
@@ -466,7 +518,7 @@ const arrangeSubdomainsAsBento = (
         const nodeCountBySub = new Map<string, number>();
 
         subdomains.forEach((subdomain) => {
-            const bb = subdomainBounds(cy, domain, subdomain);
+            const bb = subdomainBounds(cy, domain, subdomain, metrics);
             if (!bb) return;
             boundsBySub.set(subdomain, bb);
             maxWidth = Math.max(maxWidth, bb.width);
@@ -509,7 +561,7 @@ const arrangeSubdomainsAsBento = (
             translateSubdomain(cy, domain, subdomain, targetX - bb.cx, targetY - bb.cy);
         });
 
-        resolveSubdomainOverlaps(cy, domain, rankedSubdomains, 18);
+        resolveSubdomainOverlaps(cy, domain, rankedSubdomains, 32, metrics);
         const recentered = domainCentroid(cy, domain);
         if (recentered) {
             translateDomain(cy, domain, center.x - recentered.x, center.y - recentered.y);
@@ -524,8 +576,9 @@ const arrangeDomainsAroundNeuro = (
 ) => {
     if (!groupByDomain) return;
     arrangeSubdomainsAsBento(cy, settings);
+    const metrics = getLayoutMetrics(settings);
 
-    const neuroInitial = domainBounds(cy, 'neuro');
+    const neuroInitial = domainBounds(cy, 'neuro', metrics);
     if (!neuroInitial) return;
 
     const extent = cy.extent();
@@ -538,13 +591,13 @@ const arrangeDomainsAroundNeuro = (
     const neuroDy = canvasCenter.y - neuroInitial.cy;
     translateDomain(cy, 'neuro', neuroDx, neuroDy);
 
-    const neuro = domainBounds(cy, 'neuro');
+    const neuro = domainBounds(cy, 'neuro', metrics);
     if (!neuro) return;
-    const pulm = domainBounds(cy, 'pulm');
-    const renal = domainBounds(cy, 'renal');
-    const acidbase = domainBounds(cy, 'acidbase');
-    const cardio = domainBounds(cy, 'cardio');
-    const gap = 90;
+    const pulm = domainBounds(cy, 'pulm', metrics);
+    const renal = domainBounds(cy, 'renal', metrics);
+    const acidbase = domainBounds(cy, 'acidbase', metrics);
+    const cardio = domainBounds(cy, 'cardio', metrics);
+    const gap = Math.max(90, Math.round(metrics.domainPadding * 2.6));
 
     const targetCenters: Record<string, { x: number; y: number }> = {
         pulm: {
@@ -566,12 +619,12 @@ const arrangeDomainsAroundNeuro = (
     };
 
     Object.entries(targetCenters).forEach(([domain, target]) => {
-        const centroid = domainCentroid(cy, domain);
-        if (!centroid) return;
-        translateDomain(cy, domain, target.x - centroid.x, target.y - centroid.y);
+        const bounds = domainBounds(cy, domain, metrics);
+        if (!bounds) return;
+        translateDomain(cy, domain, target.x - bounds.cx, target.y - bounds.cy);
     });
 
-    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 36);
+    resolveDomainOverlaps(cy, ['neuro', 'pulm', 'renal', 'acidbase', 'cardio'], 'neuro', 56, metrics);
 };
 
 const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affectedNodes, perturbations, selectedNodeId, highlightedPath, onNodeClick, dimUnaffected, settings }, ref) => {
@@ -579,12 +632,14 @@ const GraphView = forwardRef<GraphViewRef, GraphViewProps>(({ nodes, edges, affe
     const cyRef = useRef<cytoscape.Core | null>(null);
     const pulseIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const pathAnimationRef = useRef<NodeJS.Timeout | null>(null);
-    const clampedFontSize = Math.max(16, Math.min(42, settings.fontSize));
-    const nodeTextMaxWidth = Math.max(120, Math.min(280, Math.round(clampedFontSize * 6.5)));
-    const domainLabelSize = Math.max(20, Math.min(36, Math.round(clampedFontSize * 1.35)));
-    const subdomainLabelSize = Math.max(16, Math.min(28, Math.round(clampedFontSize * 1.1)));
-    const domainPadding = Math.max(14, Math.round(settings.nodeSize * 1.6));
-    const subdomainPadding = Math.max(6, Math.round(settings.nodeSize * 0.7));
+    const {
+        clampedFontSize,
+        nodeTextMaxWidth,
+        domainLabelSize,
+        subdomainLabelSize,
+        domainPadding,
+        subdomainPadding,
+    } = getLayoutMetrics(settings);
 
     const blendHex = (a: string, b: string, t: number): string => {
         const norm = Math.max(0, Math.min(1, t));
